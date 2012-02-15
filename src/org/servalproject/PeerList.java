@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.servalproject.account.AccountService;
 import org.servalproject.batman.PeerRecord;
 import org.servalproject.dna.Dna;
 import org.servalproject.dna.Packet;
@@ -71,12 +72,15 @@ public class PeerList extends ListActivity {
 	private class Peer{
 		InetAddress addr;
 		int linkScore=-1;
+		SubscriberId sid;
 		String phoneNumber;
+		String name;
 		int retries;
 		int pingTime;
 		int ttl = -1;
 		boolean inDna=false;
 		boolean displayed=false;
+		boolean checkedContacts = false;
 
 		boolean tempInPeerList=false;
 		boolean tempDnaResponse=false;
@@ -85,7 +89,9 @@ public class PeerList extends ListActivity {
 			this.addr=addr;
 		}
 
-		private String getDisplayNumber() {
+		private String getDisplayName() {
+			if (name != null && !"".equals(name))
+				return name;
 			if (phoneNumber == null)
 				return this.addr.getHostAddress();
 			return phoneNumber;
@@ -101,12 +107,12 @@ public class PeerList extends ListActivity {
 				return " Direct";
 			int hops = 64 - (ttl - 1);
 
-			return " " + hops + " Hop(s)";
+			return " " + hops + " Hops";
 		}
 
 		@Override
 		public String toString() {
-			return getDisplayNumber() + getNetworkState();
+			return getDisplayName() + getNetworkState();
 		}
 	}
 	Map<InetAddress,Peer> peerMap=new HashMap<InetAddress,Peer>();
@@ -171,6 +177,7 @@ public class PeerList extends ListActivity {
 										peerMap.put(addr, p);
 									}
 									p.ttl = ttl;
+									p.sid = sid;
 								}
 
 								@Override
@@ -193,6 +200,7 @@ public class PeerList extends ListActivity {
 										p.tempDnaResponse = true;
 										p.retries = peer.getRetries();
 										p.pingTime = peer.getPingTime();
+										p.sid = sid;
 									} catch (IOException e) {
 										Log.d("BatPhone", e.toString(), e);
 									}
@@ -204,6 +212,16 @@ public class PeerList extends ListActivity {
 						if (!p.tempInPeerList)
 							p.linkScore=-1;
 
+						if (p.checkedContacts || p.sid == null)
+							continue;
+
+						p.name = AccountService.contactName(
+								getContentResolver(), p.sid, p.phoneNumber);
+						if (p.name == null) {
+							AccountService.addContact(getContentResolver(),
+									null, p.sid, p.phoneNumber);
+						}
+						p.checkedContacts = true;
 					}
 					PeerList.this.runOnUiThread(updateDisplay);
 					sleep(1000);
