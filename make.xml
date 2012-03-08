@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="batphone" default="compile">
+	<target name="compile">
+		<javac source="1.5" target="1.5"
+		       debug="true" extdirs="" includeantruntime="false"
+		       destdir="bin/classes/"
+		       bootclasspath="${android.target.classpath}">
+			<src path="src/" />
+			<src path="gen/" />
+		</javac>
+	</target>
+</project>

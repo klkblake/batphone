@@ -1,10 +1,10 @@
+include ../config.mk
+
 # - configuration --
 DEVICE=781DBA27C40A
 DEVICE_DEST=/data/data/org.servalproject/bin
 
 # - paths --
-SYS_ROOT=$(NDK_ROOT)/platforms/android-4/arch-arm
-TOOLCHAIN=$(NDK_ROOT)/toolchains/arm-linux-androideabi-4.4.3/prebuilt/darwin-x86
 ADB=$(SDK_ROOT)/platform-tools/adb -s $(DEVICE)
 
 # - toolchain --
@@ -49,7 +49,7 @@ adhoc : $(SOURCES) $(OBJECTS) $(HEADERS)
 parser : edify/parser.y edify/lexer.l
 	#yacc -d parser.y
 	#lex lexer.l
-  #mv y.tab.h parser.h
+	#mv y.tab.h parser.h
 
 .c.o :
 	$(CC) $(CFLAGS) -MD -c $< -o $@

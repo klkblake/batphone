@@ -1,0 +1,66 @@
+#!/bin/sh
+
+set -e
+
+die() {
+	echo $*
+	exit 1
+}
+
+target_level=7
+target=android-${target_level}
+
+ndkdir=`which ndk-build | sed 's:[^/]*$::'`
+sdkdir=`which adb | sed 's:/platform-tools/[^/]*$:/:'`
+version=`grep Pkg.Revision ${sdkdir}/tools/source.properties | cut -f2 -d"="`
+
+for p in `ls ${ndkdir}/platforms/`; do
+	if [ `echo $p | cut -f2 -d-` -ge ${target_level} ]; then
+		platform=$p
+		break
+	fi
+done
+
+[ "${platform}" = "" ] && die "Could not find valid platform"
+
+sdkplatformdir=${sdkdir}/platforms/${platform}
+ndkplatformdir=${ndkdir}/platforms/${platform}
+sysroot=${ndkplatformdir}/arch-arm
+
+case `uname -s` in
+	*Linux*) host_os=linux ;;
+	*Darwin*) host_os=darwin ;;
+	*) [ "${OS}" = Windows_NT ] && host_os=windows ;;
+esac
+[ "${host_os}" = "" ] && die "OS not supported"
+
+case `uname -m` in
+	*86*) host_arch=x86 ;;
+	*Power*) host_arch=ppc ;;
+	*) [ ${host_os} = windows ] && host_arch=x86 ;;
+esac
+[ "${host_arch}" = "" ] && die "Architecture not supported"
+
+host_tag=${host_os}-${host_arch}
+
+toolchain_version=`ls -v ${ndkdir}/toolchains/ | grep arm-linux-androideabi- | tail -n1`
+toolchain=${ndkdir}/toolchains/${toolchain_version}/prebuilt/${host_tag}
+
+cat >config.mk <<EOF
+TARGET_LEVEL=${target_level}
+TARGET=${target}
+SDK_ROOT=${sdkdir}
+NDK_ROOT=${ndkdir}
+SDK_VERSION=${version}
+PLATFORM=${platform}
+SDK_PLATFORM_DIR=${sdkplatformdir}
+NDK_PLATFORM_DIR=${ndkplatformdir}
+SYS_ROOT=${sysroot}
+HOST_OS=${host_os}
+HOST_ARCH=${host_arch}
+HOST_TAG=${host_tag}
+TOOLCHAIN_VERSION=${toolchain_version}
+TOOLCHAIN=${toolchain}
+EOF
+
+android update project -p . -t ${target}
