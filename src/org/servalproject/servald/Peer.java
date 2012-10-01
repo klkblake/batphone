@@ -20,6 +20,7 @@
 package org.servalproject.servald;
 
 import org.servalproject.account.AccountService;
+import org.servalproject.auth.AuthState;
 
 import android.content.Context;
 import android.content.OperationApplicationException;
@@ -33,6 +34,7 @@ public class Peer implements IPeer {
 	public long lastSeen = 0;
 	public boolean reachable = false;
 	public final SubscriberId sid;
+	public AuthState authState = AuthState.None;
 
 	// did / name resolved from looking up the sid
 	public String did;

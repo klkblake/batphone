@@ -3,6 +3,8 @@ package org.servalproject.batphone;
 import org.servalproject.R;
 import org.servalproject.ServalBatPhoneApplication;
 import org.servalproject.account.AccountService;
+import org.servalproject.auth.AuthState;
+import org.servalproject.auth.TestSymbolGenerators;
 import org.servalproject.servald.PeerListService;
 import org.servalproject.servald.SubscriberId;
 
@@ -38,6 +40,7 @@ public class UnsecuredCall extends Activity {
 	private TextView remote_name_2;
 	private TextView remote_number_2;
 	private TextView callstatus_2;
+	private TextView authState;
 
 	// Create runnable for posting
 	final Runnable updateCallStatus = new Runnable() {
@@ -50,6 +53,7 @@ public class UnsecuredCall extends Activity {
 	private Button incomingEndButton;
 	private Button incomingAnswerButton;
 	private Chronometer chron;
+	private Button authButton;
 
 	private String stateSummary()
 	{
@@ -152,6 +156,22 @@ public class UnsecuredCall extends Activity {
 		remote_name_2 = (TextView) findViewById(R.id.caller_name_incoming);
 		remote_number_2 = (TextView) findViewById(R.id.ph_no_display_incoming);
 		callstatus_2 = (TextView) findViewById(R.id.call_status_incoming);
+		authState = (TextView) findViewById(R.id.auth_state);
+
+		authButton = (Button) findViewById(R.id.auth_button);
+		authButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (callHandler.remotePeer.authState == AuthState.Voice) {
+					// XXX Testing
+					startActivity(new Intent(app,
+							TestSymbolGenerators.class));
+					return;
+				}
+				callHandler.remotePeer.authState = AuthState.Voice;
+				updateAuthDisplay();
+			}
+		});
 
 		updatePeerDisplay();
 
@@ -225,6 +245,20 @@ public class UnsecuredCall extends Activity {
 			nm.notify("Call", 0, inCall);
 		}
 
+		updateAuthDisplay();
+	}
+
+	private void updateAuthDisplay() {
+		AuthState s = callHandler.remotePeer.authState;
+		authState.setText(s.text);
+		authState.setTextColor(s.color);
+		if (s == AuthState.None) {
+			authButton.setVisibility(View.VISIBLE);
+		} else {
+			// authButton.setVisibility(View.GONE);
+			// XXX Testing
+			authButton.setText("Test SymGen");
+		}
 	}
 
 	private void showSubLayout() {

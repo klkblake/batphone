@@ -32,6 +32,9 @@
 	<string name="contact_name">Test Name</string><!-- from contact book else string/unknown_contact -->
 	<string name="phone_number">55566666</string><!-- determined by Serval Mesh -->
 	<string name="caller_image">Caller Image</string>	
+	<string name="auth_state_none">Not Authenticated</string>
+	<string name="auth_state_voice">Voice Authenticated</string>
+	<string name="auth_state_full">Authenticated</string>
 	
  	<!-- Serval MeshMS API Stuff -->
     <string name="system_permission_meshms_send_label">Send MeshMS messages</string>
