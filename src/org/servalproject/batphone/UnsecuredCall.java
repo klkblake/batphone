@@ -4,6 +4,8 @@ import org.servalproject.R;
 import org.servalproject.ServalBatPhoneApplication;
 import org.servalproject.account.AccountService;
 import org.servalproject.auth.AuthState;
+import org.servalproject.auth.SymbolGenerator;
+import org.servalproject.auth.SymbolGenerators;
 import org.servalproject.auth.TestSymbolGenerators;
 import org.servalproject.servald.PeerListService;
 import org.servalproject.servald.SubscriberId;
@@ -13,6 +15,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -24,8 +27,10 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Chronometer;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 public class UnsecuredCall extends Activity {
@@ -54,6 +59,12 @@ public class UnsecuredCall extends Activity {
 	private Button incomingAnswerButton;
 	private Chronometer chron;
 	private Button authButton;
+	private Spinner authGeneratorSpinner;
+	private Button authCancelButton;
+	private Button authListsButton;
+
+	private boolean inAuth;
+	private SymbolGenerator symGen;
 
 	private String stateSummary()
 	{
@@ -73,6 +84,7 @@ public class UnsecuredCall extends Activity {
 		Log.d("VoMPCall", "Updating UI for state " + stateSummary());
 
 		showSubLayout();
+		updateAuthDisplay();
 		if (callHandler.local_state == VoMP.State.RingingIn)
 			win.addFlags(incomingCallFlags);
 		else
@@ -143,6 +155,8 @@ public class UnsecuredCall extends Activity {
 		}
 
 		this.callHandler = app.callHandler;
+		inAuth = false;
+		symGen = null;
 
 		Log.d("VoMPCall", "Setup keepalive timer");
 
@@ -162,14 +176,9 @@ public class UnsecuredCall extends Activity {
 		authButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (callHandler.remotePeer.authState == AuthState.Voice) {
-					// XXX Testing
-					startActivity(new Intent(app,
-							TestSymbolGenerators.class));
-					return;
-				}
-				callHandler.remotePeer.authState = AuthState.Voice;
-				updateAuthDisplay();
+				inAuth = true;
+				findViewById(R.id.auth_intro).setVisibility(View.VISIBLE);
+				showSubLayout();
 			}
 		});
 
@@ -215,6 +224,42 @@ public class UnsecuredCall extends Activity {
 				callHandler.pickup();
 			}
 		});
+
+		authGeneratorSpinner = (Spinner) findViewById(R.id.auth_generator_spinner);
+		authGeneratorSpinner.setAdapter(new ArrayAdapter<SymbolGenerator>(this,
+				android.R.layout.simple_spinner_dropdown_item, SymbolGenerators
+						.get()));
+
+		authCancelButton = (Button) findViewById(R.id.auth_cancel_button);
+		authCancelButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				inAuth = false;
+				showSubLayout();
+			}
+		});
+
+		authListsButton = (Button) findViewById(R.id.auth_lists_button);
+		authListsButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				symGen = (SymbolGenerator) authGeneratorSpinner
+						.getSelectedItem();
+				if (symGen == null) {
+					AlertDialog.Builder builder = new AlertDialog.Builder(
+							UnsecuredCall.this);
+					builder.setMessage(R.string.auth_no_generator);
+					builder.show();
+					return;
+				}
+				// XXX Testing
+				inAuth = false;
+				showSubLayout();
+				TestSymbolGenerators.gen = symGen;
+				startActivity(new Intent(app,
+						TestSymbolGenerators.class));
+			}
+		});
 	}
 
 	private void updatePeerDisplay() {
@@ -250,9 +295,14 @@ public class UnsecuredCall extends Activity {
 
 	private void updateAuthDisplay() {
 		AuthState s = callHandler.remotePeer.authState;
+		Log.d("VOICE AUTH", "Updating auth display for state: " + s);
+		Log.d("VOICE AUTH", "\tSet text: " + s.text);
+		Log.d("VOICE AUTH", "\tSet color: " + s.color);
 		authState.setText(s.text);
 		authState.setTextColor(s.color);
-		if (s == AuthState.None) {
+		if (s == AuthState.None
+				&& callHandler.local_state != VoMP.State.CallEnded
+				&& callHandler.local_state != VoMP.State.Error) {
 			authButton.setVisibility(View.VISIBLE);
 		} else {
 			// authButton.setVisibility(View.GONE);
@@ -263,9 +313,26 @@ public class UnsecuredCall extends Activity {
 
 	private void showSubLayout() {
 		View incoming = findViewById(R.id.incoming);
+		View auth_intro = findViewById(R.id.auth_intro);
 		View incall = findViewById(R.id.incall);
 
 		chron.setBase(callHandler.getCallStarted());
+
+		if (inAuth) {
+			if (callHandler.local_state != VoMP.State.RingingIn &&
+				callHandler.local_state != VoMP.State.CallEnded &&
+				callHandler.local_state != VoMP.State.Error) {
+				incall.setVisibility(View.GONE);
+				incoming.setVisibility(View.GONE);
+				return;
+			} else {
+				auth_intro.setVisibility(View.GONE);
+				inAuth = false; // TODO: put auth stuff in separate activity.
+			}
+		} else {
+			auth_intro.setVisibility(View.GONE);
+			updateAuthDisplay();
+		}
 
 		switch (callHandler.local_state) {
 		case RingingIn:

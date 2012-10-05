@@ -41,7 +41,6 @@
 
     <!-- end call information -->
 
-
     <TextView
         android:id="@+id/call_action_type"
         style="@style/scall_action_type"
@@ -53,6 +52,7 @@
         style="@style/scaller_image2"
         android:layout_below="@+id/call_action_type"
         android:layout_centerHorizontal="true"
+        android:layout_marginTop="0sp"
         android:contentDescription="@string/caller_image"
         android:src="@drawable/ic_serval_logo" />
 
@@ -65,9 +65,10 @@
 
     <TextView
         android:id="@+id/ph_no_display"
-		style="@style/scall_no_display"
+        style="@style/scall_no_display"
         android:layout_below="@+id/caller_name"
         android:layout_centerHorizontal="true"
+        android:layout_marginTop="0sp"
         android:text="@string/phone_number" />
     
     <!-- Speaker commented until enabled -->
@@ -76,6 +77,7 @@
         android:id="@+id/speaker_button"
         style="@style/sph_controlButtons"
         android:layout_alignTop="@+id/cancel_call_button"
+        android:layout_marginRight="20dp"
         android:layout_toLeftOf="@+id/cancel_call_button"
         android:background="@drawable/phone_speaker_button"
         android:layout_marginRight="20dp" />-->
@@ -95,30 +97,31 @@
               android:layout_toRightOf="@+id/cancel_call_button"
               android:layout_marginLeft="20dp" 
               android:background="@drawable/phone_dialpad_button" />-->
-    
-              <!-- Footer -->
-          <include
-              android:id="@+id/footerLayout"
-              layout="@layout/footer_layout" />
 
-          <TextView
-              android:id="@+id/auth_state"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:layout_below="@+id/speaker_button"
-              android:layout_centerHorizontal="true"
-              android:layout_marginTop="16dp"
-              android:text="@string/auth_state_none"
-              android:textAppearance="?android:attr/textAppearanceMedium"
-              android:textColor="@color/red" />
+    <!-- Footer -->
 
-          <Button
-              android:id="@+id/auth_button"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:layout_below="@+id/auth_state"
-              android:layout_centerHorizontal="true"
-              android:layout_marginTop="12dp"
-              android:text="Begin Authentication" />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/cancel_call_button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp" >
+
+        <TextView
+            android:id="@+id/auth_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/auth_state_none"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/red" />
+
+        <Button
+            android:id="@+id/auth_button"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/auth_begin_button" />
+
+    </LinearLayout>
 
 </RelativeLayout>

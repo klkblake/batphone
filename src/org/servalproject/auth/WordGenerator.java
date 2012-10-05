@@ -1,5 +1,6 @@
 package org.servalproject.auth;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
@@ -86,6 +87,13 @@ public class WordGenerator implements SymbolGenerator {
 	@Override
 	public String toString() {
 		return "Words (" + filename + " dictionary)";
+	}
+
+	public static String[] getDicts() {
+		File dictdir = new File(
+				ServalBatPhoneApplication.context.coretask.DATA_FILE_PATH
+						+ "/dict/");
+		return dictdir.list();
 	}
 
 }
