@@ -66,7 +66,6 @@ public class WordGenerator implements SymbolGenerator {
 			for (int len = 0; map.remaining() > 0; len++) {
 				byte c = map.get();
 				if (c == '\n') {
-					len--;
 					map.reset();
 					bytes = new byte[len];
 					map.get(bytes, 0, len);
