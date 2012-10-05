@@ -227,7 +227,7 @@ public class UnsecuredCall extends Activity {
 
 		authGeneratorSpinner = (Spinner) findViewById(R.id.auth_generator_spinner);
 		authGeneratorSpinner.setAdapter(new ArrayAdapter<SymbolGenerator>(this,
-				android.R.layout.simple_spinner_dropdown_item, SymbolGenerators
+				android.R.layout.simple_spinner_item, SymbolGenerators
 						.get()));
 
 		authCancelButton = (Button) findViewById(R.id.auth_cancel_button);

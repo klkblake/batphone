@@ -1,49 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+    <TextView
+        android:id="@+id/auth_intro_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/auth_intro_title"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
-        <TextView
-            android:id="@+id/auth_intro_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/auth_intro_title"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+    <TextView
+        android:id="@+id/auth_intro"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/auth_intro_title"
+        android:text="@string/auth_intro" />
 
-        <TextView
-            android:id="@+id/auth_intro"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@+id/auth_intro_title"
-            android:text="@string/auth_intro" />
+    <Spinner
+        android:id="@+id/auth_generator_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/auth_intro"
+        android:layout_centerHorizontal="true" />
 
-        <Spinner
-            android:id="@+id/auth_generator_spinner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/auth_intro"
-            android:layout_centerHorizontal="true" />
+    <Button
+        android:id="@+id/auth_cancel_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/auth_generator_spinner"
+        android:text="@string/auth_cancel_button" />
 
-        <Button
-            android:id="@+id/auth_cancel_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@+id/auth_generator_spinner"
-            android:text="@string/auth_cancel_button" />
-
-        <Button
-            android:id="@+id/auth_lists_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_below="@+id/auth_generator_spinner"
-            android:text="@string/auth_lists_button" />
-    </RelativeLayout>
-
-</ScrollView>
+    <Button
+        android:id="@+id/auth_lists_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/auth_generator_spinner"
+        android:text="@string/auth_lists_button" />
+</RelativeLayout>
