@@ -365,6 +365,7 @@
 			</intent-filter>
 		</service>
 		<activity android:name=".auth.TestSymbolGenerators"></activity>
+		<activity android:name=".auth.AuthIntro"></activity>
 
     </application>
 

@@ -6,9 +6,6 @@
   <include android:id="@+id/incoming" layout="@layout/incomingcall"
       android:visibility="invisible" />
 
-  <include android:id="@+id/auth_intro" layout="@layout/auth_intro"
-      android:visibility="invisible"/>
-
   <include android:id="@+id/incall" layout="@layout/incall"
       android:visibility="invisible" />
 
