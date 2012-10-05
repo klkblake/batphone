@@ -88,7 +88,7 @@ public class CompletedCall extends Activity {
 		});
 		TextView authState = (TextView) findViewById(R.id.auth_state);
 		authState.setText(p.authState.text);
-		authState.setTextColor(p.authState.color);
+		authState.setTextColor(getResources().getColor(p.authState.color));
 		Button authButton = (Button) findViewById(R.id.auth_button);
 		authButton.setVisibility(View.GONE);
 

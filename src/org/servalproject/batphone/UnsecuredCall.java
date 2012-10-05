@@ -299,7 +299,7 @@ public class UnsecuredCall extends Activity {
 		Log.d("VOICE AUTH", "\tSet text: " + s.text);
 		Log.d("VOICE AUTH", "\tSet color: " + s.color);
 		authState.setText(s.text);
-		authState.setTextColor(s.color);
+		authState.setTextColor(getResources().getColor(s.color));
 		if (s == AuthState.None
 				&& callHandler.local_state != VoMP.State.CallEnded
 				&& callHandler.local_state != VoMP.State.Error) {
