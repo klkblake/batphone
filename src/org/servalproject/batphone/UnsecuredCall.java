@@ -17,7 +17,6 @@ import android.content.Context;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Paint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -278,11 +277,6 @@ public class UnsecuredCall extends Activity {
 		AuthState s = callHandler.remotePeer.authState;
 		authState.setText(s.text);
 		authState.setTextColor(getResources().getColor(s.color));
-		if (s == AuthState.Failed) {
-			authState.setPaintFlags(Paint.UNDERLINE_TEXT_FLAG);
-		} else {
-			authState.setPaintFlags(0);
-		}
 		if (s == AuthState.None
 				&& callHandler.local_state != VoMP.State.CallEnded
 				&& callHandler.local_state != VoMP.State.Error) {
