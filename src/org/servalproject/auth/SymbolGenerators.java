@@ -12,17 +12,17 @@ import org.servalproject.ServalBatPhoneApplication;
 import android.util.Log;
 
 public class SymbolGenerators {
-	private static FutureTask<SymbolGenerator[]> task;
+	private static FutureTask<SymbolGeneratorFactory[]> task;
 
 	public static void init() {
-		task = new FutureTask<SymbolGenerator[]>(
-				new Callable<SymbolGenerator[]>() {
+		task = new FutureTask<SymbolGeneratorFactory[]>(
+				new Callable<SymbolGeneratorFactory[]>() {
 					@Override
-					public SymbolGenerator[] call() throws Exception {
-						List<SymbolGenerator> symgens = new ArrayList<SymbolGenerator>();
-						for (String dict : WordGenerator.getDicts()) {
+					public SymbolGeneratorFactory[] call() throws Exception {
+						List<SymbolGeneratorFactory> symgens = new ArrayList<SymbolGeneratorFactory>();
+						for (String dict : WordGeneratorFactory.getDicts()) {
 							try {
-								symgens.add(new WordGenerator(dict));
+								symgens.add(new WordGeneratorFactory(dict));
 							} catch (IOException e) {
 								Log.e(ServalBatPhoneApplication.MSG_TAG,
 										"Could not load dict "
@@ -30,14 +30,15 @@ public class SymbolGenerators {
 												+ e.getMessage());
 							}
 						}
-						return symgens.toArray(new SymbolGenerator[symgens
+						return symgens
+								.toArray(new SymbolGeneratorFactory[symgens
 								.size()]);
 					}
 				});
 		new Thread(task).start();
 	}
 
-	public static SymbolGenerator[] get() {
+	public static SymbolGeneratorFactory[] get() {
 		try {
 			return task.get();
 		} catch (InterruptedException e) {
@@ -45,6 +46,6 @@ public class SymbolGenerators {
 		} catch (ExecutionException e) {
 			Log.e(ServalBatPhoneApplication.MSG_TAG, e.toString(), e);
 		}
-		return new SymbolGenerator[0];
+		return new SymbolGeneratorFactory[0];
 	}
 }

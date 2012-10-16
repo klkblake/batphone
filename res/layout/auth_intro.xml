@@ -34,10 +34,10 @@
         android:text="@string/auth_cancel_button" />
 
     <Button
-        android:id="@+id/auth_lists_button"
+        android:id="@+id/auth_next_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_below="@+id/auth_generator_spinner"
-        android:text="@string/auth_lists_button" />
+        android:text="@string/auth_next_button" />
 </RelativeLayout>

@@ -4,6 +4,7 @@ import org.servalproject.R;
 import org.servalproject.ServalBatPhoneApplication;
 import org.servalproject.account.AccountService;
 import org.servalproject.auth.AuthIntro;
+import org.servalproject.auth.AuthResult;
 import org.servalproject.auth.AuthState;
 import org.servalproject.servald.PeerListService;
 import org.servalproject.servald.SubscriberId;
@@ -16,6 +17,7 @@ import android.content.Context;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Paint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -219,10 +221,26 @@ public class UnsecuredCall extends Activity {
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == AUTH_REQUEST && resultCode == RESULT_OK) {
-			callHandler.remotePeer.authState = AuthState.Voice;
+		if (requestCode == AUTH_REQUEST) {
+			switch (resultCode) {
+			case AuthResult.SUCCESS:
+				callHandler.remotePeer.authState = AuthState.Voice;
+				break;
+			case AuthResult.FAILURE:
+				callHandler.remotePeer.authState = AuthState.Failed;
+				break;
+			case AuthResult.CANCELLED:
+			case AuthResult.BACK:
+				break;
+			}
 			updateAuth();
 		}
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		finishActivity(AUTH_REQUEST);
 	}
 
 	private void updatePeerDisplay() {
@@ -260,6 +278,11 @@ public class UnsecuredCall extends Activity {
 		AuthState s = callHandler.remotePeer.authState;
 		authState.setText(s.text);
 		authState.setTextColor(getResources().getColor(s.color));
+		if (s == AuthState.Failed) {
+			authState.setPaintFlags(Paint.UNDERLINE_TEXT_FLAG);
+		} else {
+			authState.setPaintFlags(0);
+		}
 		if (s == AuthState.None
 				&& callHandler.local_state != VoMP.State.CallEnded
 				&& callHandler.local_state != VoMP.State.Error) {

@@ -45,7 +45,7 @@ public class CallHandler {
 	private long callStarted = SystemClock.elapsedRealtime();
 	private long callEnded;
 	private boolean uiStarted = false;
-	private boolean initiated = false;
+	public boolean initiated = false;
 	ServalBatPhoneApplication app;
 	private UnsecuredCall ui;
 	private MediaPlayer mediaPlayer;

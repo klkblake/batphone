@@ -18,9 +18,8 @@
  * along with this source code; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="org.servalproject" android:versionName="@string/version"
-      android:installLocation="auto">
+<manifest package="org.servalproject" android:versionName="@string/version"
+      android:installLocation="auto" xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="8"/>
     
     <!-- Batphone permissions -->
@@ -364,8 +363,8 @@
 				<action android:name="org.servalproject.ACTION_START_SERVAL"/>
 			</intent-filter>
 		</service>
-		<activity android:name=".auth.TestSymbolGenerators"></activity>
 		<activity android:name=".auth.AuthIntro"></activity>
+		<activity android:name=".auth.AuthSymbols"></activity>
 
     </application>
 
