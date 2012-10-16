@@ -5,12 +5,30 @@
     android:layout_height="match_parent"
     tools:context=".auth.AuthSymbols" >
 
+
+    <TextView
+        android:id="@+id/auth_attack_probability"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:text="@string/auth_attack_probability"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:id="@+id/auth_symbol_num"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:text="@string/auth_symbol_num" />
+
     <TextView
         android:id="@+id/auth_symbol_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
+        android:layout_below="@id/auth_symbol_num"
         android:text="@string/auth_your_symbol_title"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -54,5 +72,6 @@
         android:layout_centerHorizontal="true"
         android:text="@string/auth_query_yours"
         android:textAppearance="?android:attr/textAppearanceMedium" />
+
 
 </RelativeLayout>

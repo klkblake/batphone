@@ -18,9 +18,8 @@ import android.widget.TextView;
 public class AuthSymbols extends Activity {
 
 	private static final int REQUEST = 1;
-
-	public static final int NUM_SYMBOLS = 50;
 	public static final String EXTRA_SYMBOL_GENERATOR_INDEX = "org.servalproject.auth.symbol_generator";
+
 	private static final int MIN_SYMBOLS = 4;
 	private static final int MAX_SYMBOLS = 16;
 	private static final double FAIL_THRESHOLD = 0.5;
@@ -35,14 +34,18 @@ public class AuthSymbols extends Activity {
 	private SymbolGenerator yours;
 	private SymbolGenerator theirs;
 
+	private TextView group;
+	private TextView attackProbability;
 	private TextView title;
 	private FrameLayout symbolFrame;
 	private TextView query;
 
+	private int total = 0;
 	private int yourMatches = 0;
 	private int theirMatches = 0;
 	private int yourFailures = 0;
 	private int theirFailures = 0;
+	private double probability = 1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +69,8 @@ public class AuthSymbols extends Activity {
 			yours = sgf.getSymbolGenerator(new Random(rand.nextLong()));
 		}
 
+		group = (TextView) findViewById(R.id.auth_symbol_num);
+		attackProbability = (TextView) findViewById(R.id.auth_attack_probability);
 		title = (TextView) findViewById(R.id.auth_symbol_title);
 		symbolFrame = (FrameLayout) findViewById(R.id.auth_symbol);
 		query = (TextView) findViewById(R.id.auth_query);
@@ -119,6 +124,15 @@ public class AuthSymbols extends Activity {
 	private void eval() {
 		int yourTotal = yourMatches + yourFailures;
 		int theirTotal = theirMatches + theirFailures;
+		double yourRatio = (double) yourMatches / (double) yourTotal;
+		double theirRatio = (double) theirMatches / (double) theirTotal;
+		double yourAdjustedRatio = (double) (yourMatches + 1)
+				/ (double) (yourTotal + 2);
+		double theirAdjustedRatio = (double) (theirMatches + 1)
+				/ (double) (theirTotal + 2);
+		// This is not yet an actual probability, but it should at least
+		// look vaguely like one.
+		probability = 1 - (yourAdjustedRatio + theirAdjustedRatio) / 2;
 		if (yourTotal < MIN_SYMBOLS || theirTotal < MIN_SYMBOLS) {
 			switchState();
 			next();
@@ -128,8 +142,6 @@ public class AuthSymbols extends Activity {
 			fail();
 			return;
 		}
-		double yourRatio = (double) yourMatches / (double) yourTotal;
-		double theirRatio = (double) theirMatches / (double) theirTotal;
 		if (yourRatio < FAIL_THRESHOLD || theirRatio < FAIL_THRESHOLD) {
 			fail();
 			return;
@@ -180,11 +192,16 @@ public class AuthSymbols extends Activity {
 	}
 
 	private void next() {
+		total++;
+		group.setText(getString(R.string.auth_symbol_num, total));
+		attackProbability.setText(getString(R.string.auth_attack_probability,
+				probability));
 		symbolFrame.removeAllViews();
 		switch (state) {
 		case YOU:
 			title.setText(R.string.auth_your_symbol_title);
 			symbolFrame.addView(yours.getSymbolBlock(this));
+
 			query.setText(R.string.auth_query_yours);
 			break;
 		case THEM:
