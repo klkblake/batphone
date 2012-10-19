@@ -27,6 +27,7 @@ public class WordGeneratorFactory implements SymbolGeneratorFactory {
 		// index array instead of using an ArrayList to avoid the significant
 		// memory overhead of using Integers instead of ints.
 		// The dictionary file must end with a newline.
+		// TODO The index should be pregenerated
 		this.filename = filename;
 		chan = new FileInputStream(
 				ServalBatPhoneApplication.context.coretask.DATA_FILE_PATH
@@ -110,6 +111,11 @@ public class WordGeneratorFactory implements SymbolGeneratorFactory {
 				}
 			}
 			return new String(bytes);
+		}
+
+		@Override
+		public double getEntropy() {
+			return BLOCK_SIZE * (Math.log(index.length) / Math.log(2));
 		}
 	}
 

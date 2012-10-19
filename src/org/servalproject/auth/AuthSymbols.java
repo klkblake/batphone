@@ -11,8 +11,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.GridView;
 import android.widget.TextView;
 
 public class AuthSymbols extends Activity {
@@ -20,10 +23,10 @@ public class AuthSymbols extends Activity {
 	private static final int REQUEST = 1;
 	public static final String EXTRA_SYMBOL_GENERATOR_INDEX = "org.servalproject.auth.symbol_generator";
 
-	private static final int MIN_SYMBOLS = 4;
-	private static final int MAX_SYMBOLS = 16;
-	private static final double FAIL_THRESHOLD = 0.5;
-	private static final double SUCCEED_THRESHOLD = 0.8;
+	private static final int MIN_ENTROPY = 64;
+	private static final int MAX_ERRORS = 1;
+
+	private static final int NUM_FAKE_SYMBOLS = 3;
 
 	public enum State {
 		YOU, THEM
@@ -31,21 +34,27 @@ public class AuthSymbols extends Activity {
 
 	private State state;
 
+	private Random rand = new Random();
+
 	private SymbolGenerator yours;
 	private SymbolGenerator theirs;
+	private SymbolGenerator dummy;
 
 	private TextView group;
-	private TextView attackProbability;
+	private TextView entropyView;
 	private TextView title;
-	private FrameLayout symbolFrame;
-	private TextView query;
+	private FrameLayout symbol;
+	private GridView possibleSymbols;
+	private Button next;
+
+	private View[] possibleSymbolViews;
+	private int trueSymbol;
 
 	private int total = 0;
-	private int yourMatches = 0;
-	private int theirMatches = 0;
-	private int yourFailures = 0;
-	private int theirFailures = 0;
-	private double probability = 1;
+	private boolean youSucceeded = false;
+	private boolean theySucceeded = false;
+	private int errors = 0;
+	private double entropy = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -58,22 +67,28 @@ public class AuthSymbols extends Activity {
 					+ " not set");
 		}
 		SymbolGeneratorFactory sgf = SymbolGenerators.get()[index];
-		Random rand = new Random(1234);
+		Random secrand = new Random(1234); // XXX session key goes here
 		if (ServalBatPhoneApplication.context.callHandler.initiated) {
-			state = State.YOU;
-			yours = sgf.getSymbolGenerator(new Random(rand.nextLong()));
-			theirs = sgf.getSymbolGenerator(new Random(rand.nextLong()));
+			state = State.THEM; // These are reversed, since next is called
+								// before the first symbol.
+			yours = sgf.getSymbolGenerator(new Random(secrand.nextLong()));
+			theirs = sgf.getSymbolGenerator(new Random(secrand.nextLong()));
 		} else {
-			state = State.THEM;
-			theirs = sgf.getSymbolGenerator(new Random(rand.nextLong()));
-			yours = sgf.getSymbolGenerator(new Random(rand.nextLong()));
+			state = State.YOU;
+			theirs = sgf.getSymbolGenerator(new Random(secrand.nextLong()));
+			yours = sgf.getSymbolGenerator(new Random(secrand.nextLong()));
 		}
+		dummy = sgf.getSymbolGenerator(rand);
 
 		group = (TextView) findViewById(R.id.auth_symbol_num);
-		attackProbability = (TextView) findViewById(R.id.auth_attack_probability);
+		entropyView = (TextView) findViewById(R.id.auth_entropy);
 		title = (TextView) findViewById(R.id.auth_symbol_title);
-		symbolFrame = (FrameLayout) findViewById(R.id.auth_symbol);
-		query = (TextView) findViewById(R.id.auth_query);
+		symbol = (FrameLayout) findViewById(R.id.auth_symbol);
+		possibleSymbols = (GridView) findViewById(R.id.auth_possible_symbols);
+		possibleSymbolViews = new View[NUM_FAKE_SYMBOLS + 1];
+		possibleSymbols.setAdapter(new ViewArrayAdapter(this,
+				possibleSymbolViews, R.drawable.border));
+		next = (Button) findViewById(R.id.auth_next_button);
 
 		next();
 
@@ -86,82 +101,58 @@ public class AuthSymbols extends Activity {
 			}
 		});
 
-		Button yes = (Button) findViewById(R.id.auth_yes_button);
-		yes.setOnClickListener(new OnClickListener() {
+		next.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				switch (state) {
-				case YOU:
-					yourMatches++;
-					break;
-				case THEM:
-					theirMatches++;
-					break;
-				}
-				eval();
+				correct();
 			}
 		});
 
-		Button no = (Button) findViewById(R.id.auth_no_button);
-		no.setOnClickListener(new OnClickListener() {
+		possibleSymbols.setOnItemClickListener(new OnItemClickListener() {
 			@Override
-			public void onClick(View v) {
-				switch (state) {
-				case YOU:
-					yourFailures++;
-					break;
-				case THEM:
-					theirFailures++;
-					break;
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				if (position == trueSymbol) {
+					correct();
+				} else {
+					error();
 				}
-				eval();
 			}
 		});
+	}
+
+	private void correct() {
+		total++;
+		switch (state) {
+		case YOU:
+			entropy += yours.getEntropy();
+			youSucceeded = true;
+			break;
+		case THEM:
+			entropy += theirs.getEntropy();
+			theySucceeded = true;
+			break;
+		}
+		eval();
+	}
+
+	private void error() {
+		total++;
+		errors++;
+		entropy = 0;
+		eval();
 	}
 
 	// XXX This does not currently take into account how much entropy is in each
 	// symbol.
 	private void eval() {
-		int yourTotal = yourMatches + yourFailures;
-		int theirTotal = theirMatches + theirFailures;
-		double yourRatio = (double) yourMatches / (double) yourTotal;
-		double theirRatio = (double) theirMatches / (double) theirTotal;
-		double yourAdjustedRatio = (double) (yourMatches + 1)
-				/ (double) (yourTotal + 2);
-		double theirAdjustedRatio = (double) (theirMatches + 1)
-				/ (double) (theirTotal + 2);
-		// This is not yet an actual probability, but it should at least
-		// look vaguely like one.
-		probability = 1 - (yourAdjustedRatio + theirAdjustedRatio) / 2;
-		if (yourTotal < MIN_SYMBOLS || theirTotal < MIN_SYMBOLS) {
-			switchState();
-			next();
-			return;
-		}
-		if (yourTotal > MAX_SYMBOLS || theirTotal > MAX_SYMBOLS) {
-			fail();
-			return;
-		}
-		if (yourRatio < FAIL_THRESHOLD || theirRatio < FAIL_THRESHOLD) {
-			fail();
-			return;
-		}
-		if (yourRatio > SUCCEED_THRESHOLD && theirRatio > SUCCEED_THRESHOLD) {
+		if (youSucceeded && theySucceeded && entropy >= MIN_ENTROPY) {
 			succeed();
-			return;
-		}
-		if (yourRatio > SUCCEED_THRESHOLD) {
-			state = State.THEM;
+		} else if (errors > MAX_ERRORS) {
+			fail();
+		} else {
 			next();
-			return;
 		}
-		if (theirRatio > SUCCEED_THRESHOLD) {
-			state = State.YOU;
-			next();
-			return;
-		}
-		switchState();
-		next();
 	}
 
 	private void succeed() {
@@ -180,7 +171,11 @@ public class AuthSymbols extends Activity {
 		finish();
 	}
 
-	private void switchState() {
+	private void next() {
+		group.setText(getString(R.string.auth_symbol_num, total));
+		entropyView.setText(getString(R.string.auth_entropy,
+				entropy));
+
 		switch (state) {
 		case YOU:
 			state = State.THEM;
@@ -189,25 +184,30 @@ public class AuthSymbols extends Activity {
 			state = State.YOU;
 			break;
 		}
-	}
 
-	private void next() {
-		total++;
-		group.setText(getString(R.string.auth_symbol_num, total));
-		attackProbability.setText(getString(R.string.auth_attack_probability,
-				probability));
-		symbolFrame.removeAllViews();
 		switch (state) {
 		case YOU:
 			title.setText(R.string.auth_your_symbol_title);
-			symbolFrame.addView(yours.getSymbolBlock(this));
-
-			query.setText(R.string.auth_query_yours);
+			symbol.removeAllViews();
+			symbol.addView(yours.getSymbolBlock(this));
+			symbol.setVisibility(View.VISIBLE);
+			possibleSymbols.setVisibility(View.GONE);
+			next.setVisibility(View.VISIBLE);
 			break;
 		case THEM:
 			title.setText(R.string.auth_their_symbol_title);
-			symbolFrame.addView(theirs.getSymbolBlock(this));
-			query.setText(R.string.auth_query_theirs);
+			symbol.setVisibility(View.GONE);
+			trueSymbol = rand.nextInt(possibleSymbolViews.length);
+			for (int i = 0; i < possibleSymbolViews.length; i++) {
+				if (i == trueSymbol) {
+					possibleSymbolViews[i] = theirs.getSymbolBlock(this);
+				} else {
+					possibleSymbolViews[i] = dummy.getSymbolBlock(this);
+				}
+			}
+			((ViewArrayAdapter) possibleSymbols.getAdapter()).notifyChanged();
+			possibleSymbols.setVisibility(View.VISIBLE);
+			next.setVisibility(View.GONE);
 			break;
 		}
 	}

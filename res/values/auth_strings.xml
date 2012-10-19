@@ -19,7 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-	<string name="auth_state_failed">!!!Attacker Detected!!!</string>
+	<string name="auth_state_failed">!!!Authentication Failed!!!</string>
 	<string name="auth_state_none">Not Authenticated</string>
 	<string name="auth_state_voice">Voice Authenticated</string>
 	<string name="auth_state_full">Authenticated</string>
@@ -40,7 +40,7 @@
 		You can select what set of words or symbols you would like to
 		use from the dropdown below. Once you and your partner have
 		agreed on a set, press \"Next\" to continue.</string>
-	<string name="auth_cancel_button">Cancel</string>
+	<string name="auth_cancel_button">Authenticate Later</string>
 	<string name="auth_next_button">Next</string>
 	<string name="auth_no_generator">No list generator selected!</string>
 	<string name="auth_symbol_num">Symbol group %d</string>
