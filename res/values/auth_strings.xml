@@ -44,12 +44,10 @@
 	<string name="auth_next_button">Next</string>
 	<string name="auth_no_generator">No list generator selected!</string>
 	<string name="auth_symbol_num">Symbol group %d</string>
-	<string name="auth_attack_probability">Attack probability: %f</string>
-	<string name="auth_your_symbol_title">Read these out to your partner:</string>
-	<string name="auth_their_symbol_title">Your partner will read these out to you:</string>
-
-	<string name="auth_query_yours">Did all your symbols match your partner\'s?</string>
-	<string name="auth_query_theirs">Did all your partner\'s symbols match yours?</string>
+	<string name="auth_entropy">Entropy: %f</string>
+	<string name="auth_your_symbol_title">Read this list to your partner:</string>
+	<string name="auth_their_symbol_title">Which list did your partner read?</string>
+	<string name="auth_query">Did your partner choose the correct list?</string>
 	<string name="auth_yes_button">Yes</string>
 	<string name="auth_no_button">No</string>
 </resources>

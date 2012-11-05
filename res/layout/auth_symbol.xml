@@ -49,18 +49,33 @@
         android:text="@string/auth_cancel_button" />
 
     <Button
-        android:id="@+id/auth_next_button"
+        android:id="@+id/auth_yes_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:text="@string/auth_next_button" />
+        android:text="@string/auth_yes_button" />
+
+    <Button
+        android:id="@+id/auth_no_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toLeftOf="@id/auth_yes_button"
+        android:text="@string/auth_no_button" />
+
+    <TextView
+        android:id="@+id/auth_query"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/auth_yes_button"
+        android:text="@string/auth_query" />
 
     <GridView
         android:id="@+id/auth_possible_symbols"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@id/auth_cancel_button"
+        android:layout_above="@id/auth_query"
         android:layout_below="@id/auth_symbol_title"
         android:layout_centerHorizontal="true"
         android:horizontalSpacing="5dp"

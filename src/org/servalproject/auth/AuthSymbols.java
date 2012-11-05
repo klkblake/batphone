@@ -6,7 +6,6 @@ import org.servalproject.R;
 import org.servalproject.ServalBatPhoneApplication;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -17,6 +16,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class AuthSymbols extends Activity {
 
@@ -45,7 +45,8 @@ public class AuthSymbols extends Activity {
 	private TextView title;
 	private FrameLayout symbol;
 	private GridView possibleSymbols;
-	private Button next;
+	private TextView query;
+	private Button yes, no;
 
 	private View[] possibleSymbolViews;
 	private int trueSymbol;
@@ -88,7 +89,9 @@ public class AuthSymbols extends Activity {
 		possibleSymbolViews = new View[NUM_FAKE_SYMBOLS + 1];
 		possibleSymbols.setAdapter(new ViewArrayAdapter(this,
 				possibleSymbolViews, R.drawable.border));
-		next = (Button) findViewById(R.id.auth_next_button);
+		query = (TextView) findViewById(R.id.auth_query);
+		yes = (Button) findViewById(R.id.auth_yes_button);
+		no = (Button) findViewById(R.id.auth_no_button);
 
 		next();
 
@@ -101,10 +104,17 @@ public class AuthSymbols extends Activity {
 			}
 		});
 
-		next.setOnClickListener(new OnClickListener() {
+		yes.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				correct();
+			}
+		});
+
+		no.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				error();
 			}
 		});
 
@@ -113,12 +123,19 @@ public class AuthSymbols extends Activity {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				if (position == trueSymbol) {
+					showToast("Correct");
 					correct();
 				} else {
+					showToast("Incorrect");
 					error();
 				}
 			}
 		});
+	}
+
+	private void showToast(String msg) {
+		Toast.makeText(ServalBatPhoneApplication.context, msg,
+				Toast.LENGTH_SHORT).show();
 	}
 
 	private void correct() {
@@ -156,17 +173,13 @@ public class AuthSymbols extends Activity {
 	}
 
 	private void succeed() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage("Auth Succeeded");
-		builder.show();
+		showToast("Auth Succeeded");
 		setResult(AuthResult.SUCCESS);
 		finish();
 	}
 
 	private void fail() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage("Auth Failed");
-		builder.show();
+		showToast("Auth Failed");
 		setResult(AuthResult.FAILURE);
 		finish();
 	}
@@ -192,7 +205,9 @@ public class AuthSymbols extends Activity {
 			symbol.addView(yours.getSymbolBlock(this));
 			symbol.setVisibility(View.VISIBLE);
 			possibleSymbols.setVisibility(View.GONE);
-			next.setVisibility(View.VISIBLE);
+			query.setVisibility(View.VISIBLE);
+			yes.setVisibility(View.VISIBLE);
+			no.setVisibility(View.VISIBLE);
 			break;
 		case THEM:
 			title.setText(R.string.auth_their_symbol_title);
@@ -207,7 +222,9 @@ public class AuthSymbols extends Activity {
 			}
 			((ViewArrayAdapter) possibleSymbols.getAdapter()).notifyChanged();
 			possibleSymbols.setVisibility(View.VISIBLE);
-			next.setVisibility(View.GONE);
+			query.setVisibility(View.GONE);
+			yes.setVisibility(View.GONE);
+			no.setVisibility(View.GONE);
 			break;
 		}
 	}
