@@ -10,5 +10,5 @@ public interface SymbolGeneratorFactory {
 	 *            The PRNG to use
 	 * @return the new SymbolGenerator
 	 */
-	SymbolGenerator getSymbolGenerator(Random rand);
+	SymbolGenerator create(Random rand);
 }

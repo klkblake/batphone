@@ -21,7 +21,7 @@ import android.widget.Toast;
 public class AuthSymbols extends Activity {
 
 	private static final int REQUEST = 1;
-	public static final String EXTRA_SYMBOL_GENERATOR_INDEX = "org.servalproject.auth.symbol_generator";
+	public static final String EXTRA_SYMBOL_GENERATOR_NAME = "org.servalproject.auth.symbol_generator";
 
 	private static final int MIN_ENTROPY = 256;
 	private static final int MAX_ERRORS = 1;
@@ -44,11 +44,11 @@ public class AuthSymbols extends Activity {
 	private TextView entropyView;
 	private TextView title;
 	private FrameLayout symbol;
-	private GridView possibleSymbols;
+	private GridView possibleSymbolsGrid;
 	private TextView query;
 	private Button yes, no;
 
-	private View[] possibleSymbolViews;
+	private Symbol[] possibleSymbols;
 	private int trueSymbol;
 
 	private int total = 0;
@@ -62,33 +62,33 @@ public class AuthSymbols extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.auth_symbol);
 
-		int index = getIntent().getIntExtra(EXTRA_SYMBOL_GENERATOR_INDEX, -1);
-		if (index == -1) {
-			throw new IllegalArgumentException(EXTRA_SYMBOL_GENERATOR_INDEX
+		String name = getIntent().getStringExtra(EXTRA_SYMBOL_GENERATOR_NAME);
+		if (name == null) {
+			throw new IllegalArgumentException(EXTRA_SYMBOL_GENERATOR_NAME
 					+ " not set");
 		}
-		SymbolGeneratorFactory sgf = SymbolGenerators.get()[index];
+		SymbolGeneratorFactory factory = SymbolGenerators.get().get(name);
 		Random secrand = new Random(1234); // XXX session key goes here
 		if (ServalBatPhoneApplication.context.callHandler.initiated) {
 			state = State.THEM; // These are reversed, since next is called
 								// before the first symbol.
-			yours = sgf.getSymbolGenerator(new Random(secrand.nextLong()));
-			theirs = sgf.getSymbolGenerator(new Random(secrand.nextLong()));
+			yours = factory.create(new Random(secrand.nextLong()));
+			theirs = factory.create(new Random(secrand.nextLong()));
 		} else {
 			state = State.YOU;
-			theirs = sgf.getSymbolGenerator(new Random(secrand.nextLong()));
-			yours = sgf.getSymbolGenerator(new Random(secrand.nextLong()));
+			theirs = factory.create(new Random(secrand.nextLong()));
+			yours = factory.create(new Random(secrand.nextLong()));
 		}
-		dummy = sgf.getSymbolGenerator(rand);
+		dummy = factory.create(rand);
 
 		group = (TextView) findViewById(R.id.auth_symbol_num);
 		entropyView = (TextView) findViewById(R.id.auth_entropy);
 		title = (TextView) findViewById(R.id.auth_symbol_title);
 		symbol = (FrameLayout) findViewById(R.id.auth_symbol);
-		possibleSymbols = (GridView) findViewById(R.id.auth_possible_symbols);
-		possibleSymbolViews = new View[NUM_FAKE_SYMBOLS + 1];
-		possibleSymbols.setAdapter(new ViewArrayAdapter(this,
-				possibleSymbolViews, R.drawable.border));
+		possibleSymbolsGrid = (GridView) findViewById(R.id.auth_possible_symbols);
+		possibleSymbols = new Symbol[NUM_FAKE_SYMBOLS + 1];
+		possibleSymbolsGrid.setAdapter(new SymbolArrayAdapter(this,
+				possibleSymbols));
 		query = (TextView) findViewById(R.id.auth_query);
 		yes = (Button) findViewById(R.id.auth_yes_button);
 		no = (Button) findViewById(R.id.auth_no_button);
@@ -118,7 +118,7 @@ public class AuthSymbols extends Activity {
 			}
 		});
 
-		possibleSymbols.setOnItemClickListener(new OnItemClickListener() {
+		possibleSymbolsGrid.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
@@ -202,9 +202,9 @@ public class AuthSymbols extends Activity {
 		case YOU:
 			title.setText(R.string.auth_your_symbol_title);
 			symbol.removeAllViews();
-			symbol.addView(yours.getSymbolBlock(this));
+			symbol.addView(yours.next().getView(this, null));
 			symbol.setVisibility(View.VISIBLE);
-			possibleSymbols.setVisibility(View.GONE);
+			possibleSymbolsGrid.setVisibility(View.GONE);
 			query.setVisibility(View.VISIBLE);
 			yes.setVisibility(View.VISIBLE);
 			no.setVisibility(View.VISIBLE);
@@ -212,16 +212,17 @@ public class AuthSymbols extends Activity {
 		case THEM:
 			title.setText(R.string.auth_their_symbol_title);
 			symbol.setVisibility(View.GONE);
-			trueSymbol = rand.nextInt(possibleSymbolViews.length);
-			for (int i = 0; i < possibleSymbolViews.length; i++) {
+			trueSymbol = rand.nextInt(possibleSymbols.length);
+			for (int i = 0; i < possibleSymbols.length; i++) {
 				if (i == trueSymbol) {
-					possibleSymbolViews[i] = theirs.getSymbolBlock(this);
+					possibleSymbols[i] = theirs.next();
 				} else {
-					possibleSymbolViews[i] = dummy.getSymbolBlock(this);
+					possibleSymbols[i] = dummy.next();
 				}
 			}
-			((ViewArrayAdapter) possibleSymbols.getAdapter()).notifyChanged();
-			possibleSymbols.setVisibility(View.VISIBLE);
+			((SymbolArrayAdapter) possibleSymbolsGrid.getAdapter())
+					.notifyChanged();
+			possibleSymbolsGrid.setVisibility(View.VISIBLE);
 			query.setVisibility(View.GONE);
 			yes.setVisibility(View.GONE);
 			no.setVisibility(View.GONE);
