@@ -45,6 +45,7 @@ public class AuthSymbols extends Activity {
 	private TextView title;
 	private FrameLayout symbol;
 	private GridView possibleSymbolsGrid;
+	private Button noMatch;
 	private TextView query;
 	private Button yes, no;
 
@@ -89,6 +90,7 @@ public class AuthSymbols extends Activity {
 		possibleSymbols = new Symbol[NUM_FAKE_SYMBOLS + 1];
 		possibleSymbolsGrid.setAdapter(new SymbolArrayAdapter(this,
 				possibleSymbols));
+		noMatch = (Button) findViewById(R.id.auth_no_match);
 		query = (TextView) findViewById(R.id.auth_query);
 		yes = (Button) findViewById(R.id.auth_yes_button);
 		no = (Button) findViewById(R.id.auth_no_button);
@@ -101,6 +103,13 @@ public class AuthSymbols extends Activity {
 			public void onClick(View v) {
 				setResult(AuthResult.CANCELLED);
 				finish();
+			}
+		});
+
+		noMatch.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				error();
 			}
 		});
 
@@ -205,6 +214,7 @@ public class AuthSymbols extends Activity {
 			symbol.addView(yours.next().getView(this, null));
 			symbol.setVisibility(View.VISIBLE);
 			possibleSymbolsGrid.setVisibility(View.GONE);
+			noMatch.setVisibility(View.GONE);
 			query.setVisibility(View.VISIBLE);
 			yes.setVisibility(View.VISIBLE);
 			no.setVisibility(View.VISIBLE);
@@ -223,6 +233,7 @@ public class AuthSymbols extends Activity {
 			((SymbolArrayAdapter) possibleSymbolsGrid.getAdapter())
 					.notifyChanged();
 			possibleSymbolsGrid.setVisibility(View.VISIBLE);
+			noMatch.setVisibility(View.VISIBLE);
 			query.setVisibility(View.GONE);
 			yes.setVisibility(View.GONE);
 			no.setVisibility(View.GONE);

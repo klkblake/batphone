@@ -47,6 +47,7 @@
 	<string name="auth_entropy">Entropy: %f</string>
 	<string name="auth_your_symbol_title">Read this list to your partner:</string>
 	<string name="auth_their_symbol_title">Which list did your partner read?</string>
+	<string name="auth_no_match">None of the above</string>
 	<string name="auth_query">Did your partner choose the correct list?</string>
 	<string name="auth_yes_button">Yes</string>
 	<string name="auth_no_button">No</string>
