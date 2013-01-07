@@ -46,7 +46,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.servalproject.auth.SymbolGenerators;
 import org.servalproject.batphone.CallHandler;
 import org.servalproject.meshms.IncomingMeshMS;
 import org.servalproject.rhizome.Rhizome;
@@ -202,7 +201,6 @@ public class ServalBatPhoneApplication extends Application {
 		// show notification for any unseen messages
 		IncomingMeshMS.initialiseNotification(this);
 
-		SymbolGenerators.init();
 		return true;
 	}
 

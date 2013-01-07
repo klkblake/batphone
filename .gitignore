@@ -13,6 +13,8 @@
 /data/bin/adhoc
 /data/bin/iwlist
 /data/bin/servald
+/data/dict/*.idx
+/tools/*.class
 /res/values/version.xml
 .DS_Store
 proguard-project.txt

@@ -3,6 +3,7 @@ package org.servalproject.auth;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.IntBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
@@ -34,6 +35,9 @@ public class WordGenerator implements SymbolGenerator {
 				ServalBatPhoneApplication.context.coretask.DATA_FILE_PATH
 						+ "/dict/");
 		for (File file : dictdir.listFiles()) {
+			if (file.getName().endsWith(".idx")) {
+				continue;
+			}
 			final Dictionary dict;
 			try {
 				dict = new Dictionary(file);
@@ -94,54 +98,33 @@ class WordSymbol implements Symbol {
 }
 
 class Dictionary {
-	private FileChannel chan;
-	private MappedByteBuffer map;
-	private int[] index;
+	private MappedByteBuffer dict;
+	private IntBuffer index;
 
 	public Dictionary(File file) throws IOException {
 		// Due to memory constraints on low-end phones, we cannot read the
-		// entire dictionary into memory. Additionally, we manually manage the
-		// index array instead of using an ArrayList to avoid the significant
-		// memory overhead of using Integers instead of ints.
+		// entire dictionary into memory.
 		// The dictionary file must end with a newline.
-		// TODO The index should be pregenerated
-		chan = new FileInputStream(file).getChannel();
-		map = chan.map(MapMode.READ_ONLY, 0, chan.size());
-		index = new int[1];
-		int word = 0;
-		int mark = 0;
-		while (map.remaining() > 0) {
-			byte c = map.get();
-			if (c == '\n') {
-				index[word++] = mark;
-				mark = map.position();
-				if (word == index.length) {
-					int[] newIndex = new int[index.length * 2];
-					System.arraycopy(index, 0, newIndex, 0, index.length);
-					index = newIndex;
-				}
-			}
-		}
-		if (word < index.length) {
-			int[] newIndex = new int[word];
-			System.arraycopy(index, 0, newIndex, 0, word);
-			index = newIndex;
-		}
+		FileChannel chan = new FileInputStream(file).getChannel();
+		dict = chan.map(MapMode.READ_ONLY, 0, chan.size());
+		chan = new FileInputStream(file.getAbsolutePath() + ".idx")
+				.getChannel();
+		index = chan.map(MapMode.READ_ONLY, 0, chan.size()).asIntBuffer();
 	}
 
 	public StringBuilder get(int idx) {
 		StringBuilder sb = new StringBuilder();
-		map.position(index[idx]);
-		byte c = map.get();
-		while (map.remaining() > 0 && c != '\n') {
+		dict.position(index.get(idx));
+		byte c = dict.get();
+		while (dict.remaining() > 0 && c != '\n') {
 			sb.append((char) c);
-			c = map.get();
+			c = dict.get();
 		}
 		return sb;
 	}
 
 	public int size() {
-		return index.length;
+		return index.capacity();
 	}
 
 }

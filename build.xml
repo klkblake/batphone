@@ -89,7 +89,16 @@
                 <echo file="${basedir}/res/values/version.xml" append="false">&lt;?xml version="1.0" encoding="utf-8"?&gt;&lt;resources&gt;&lt;string name="version"&gt;${version.name}&lt;/string&gt;&lt;/resources&gt;</echo>
     </target>
 
-    <target name="res-zip">
+    <target name="build-indexes">
+        <javac sourcepath="" srcdir="${basedir}/tools" destdir="${basedir}/tools" includeAntRuntime="false">
+            <include name="IndexBuilder.java"/>
+        </javac>
+        <java classpath="${basedir}/tools" classname="IndexBuilder" failonerror="true">
+		<arg value="${basedir}/data/dict"/>
+        </java>
+    </target>
+
+    <target name="res-zip" depends="build-indexes">
 
         <copy file="${basedir}/libs/armeabi/adhoc" tofile="${basedir}/data/bin/adhoc" overwrite="true" failonerror="true"/>
         <copy file="${servald.binary}" tofile="${basedir}/data/bin/servald" overwrite="true" failonerror="true"/>
@@ -253,6 +262,13 @@ ${-manifest.version}
     </target>
     
     <target name="-pre-build" depends="version,ndk-build,res-zip" />
+
+    <target name="-pre-clean">
+        <delete>
+            <fileset dir="${basedir}/data/dict" includes="*.idx"/>
+            <fileset dir="${basedir}/tools" includes="**/*.class"/>
+        </delete>
+    </target>
 
     <target name="clean-all" depends="clean">
       <exec executable="${ndk.dir}/ndk-build" failonerror="true">
