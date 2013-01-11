@@ -365,6 +365,7 @@
 		</service>
 		<activity android:name=".auth.AuthIntro"></activity>
 		<activity android:name=".auth.AuthSymbols"></activity>
+		<activity android:name=".auth.AuthFinished"></activity>
 
     </application>
 

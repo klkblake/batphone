@@ -182,15 +182,17 @@ public class AuthSymbols extends Activity {
 	}
 
 	private void succeed() {
-		showToast("Auth Succeeded");
-		setResult(AuthResult.SUCCESS);
-		finish();
+		startFinished(true);
 	}
 
 	private void fail() {
-		showToast("Auth Failed");
-		setResult(AuthResult.FAILURE);
-		finish();
+		startFinished(false);
+	}
+
+	private void startFinished(boolean success) {
+		Intent intent = new Intent(this, AuthFinished.class);
+		intent.putExtra(AuthFinished.EXTRA_SUCCEEDED, success);
+		startActivityForResult(intent, REQUEST);
 	}
 
 	private void next() {
