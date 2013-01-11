@@ -46,7 +46,11 @@ public class WordGenerator implements SymbolGenerator {
 						+ file + ": " + e);
 				continue;
 			}
-			factories.put("Words (" + file.getName() + " dictionary)",
+			String name = file.getName();
+			name = name.substring(0, 1).toUpperCase() + name.substring(1);
+			factories.put(
+					"Words (" + name + " dictionary, " + dict.size()
+							+ " words)",
 					new SymbolGeneratorFactory() {
 						@Override
 						public SymbolGenerator create(Random rand) {
