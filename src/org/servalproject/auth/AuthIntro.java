@@ -14,6 +14,7 @@ import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 public class AuthIntro extends Activity {
 
@@ -23,6 +24,13 @@ public class AuthIntro extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.auth_intro);
+		if (ServalBatPhoneApplication.context.callHandler.getAuthToken() == null) {
+			Toast.makeText(
+					this,
+					"Cannot authenticate: did not received auth token from ServalD",
+					Toast.LENGTH_SHORT).show();
+			finish();
+		}
 
 		final Spinner generator = (Spinner) findViewById(R.id.auth_generator_spinner);
 		Map<String, SymbolGeneratorFactory> symgens = SymbolGenerators.get();

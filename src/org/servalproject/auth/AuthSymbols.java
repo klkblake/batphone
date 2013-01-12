@@ -4,6 +4,7 @@ import java.util.Random;
 
 import org.servalproject.R;
 import org.servalproject.ServalBatPhoneApplication;
+import org.servalproject.servald.AbstractIdRandom;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -68,7 +69,7 @@ public class AuthSymbols extends Activity {
 					+ " not set");
 		}
 		SymbolGeneratorFactory factory = SymbolGenerators.get().get(name);
-		symgen = factory.create(new AuthTokenRandom(
+		symgen = factory.create(new AbstractIdRandom(
 				ServalBatPhoneApplication.context.callHandler.getAuthToken()));
 		state = ServalBatPhoneApplication.context.callHandler.initiated ? State.THEM
 				: State.YOU; // These are reversed, since next is called before

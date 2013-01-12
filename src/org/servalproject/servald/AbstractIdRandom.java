@@ -1,21 +1,17 @@
-package org.servalproject.auth;
+package org.servalproject.servald;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
-import android.util.Log;
-
-public class AuthTokenRandom extends Random {
+public class AbstractIdRandom extends Random {
 	private static final long serialVersionUID = 1L;
 
 	private Random selecter;
 	private Random prngs[];
 
-	public AuthTokenRandom(AuthToken key) {
-		byte[] data = key.getData();
-		Log.i("KeyRandom", "New random with key data: " + Arrays.toString(data));
+	public AbstractIdRandom(AuthToken key) {
+		byte[] data = key.toByteArray();
 		List<Long> seeds = new ArrayList<Long>();
 		int i;
 		for (i = 6; i < data.length; i += 6) {
@@ -36,8 +32,6 @@ public class AuthTokenRandom extends Random {
 			seed >>= shift + 8;
 			seeds.add(seed);
 		}
-		Log.i("KeyRandom",
-				"Generated seeds: " + Arrays.toString(seeds.toArray()));
 		selecter = new Random(seeds.remove(seeds.size() - 1));
 		this.prngs = new Random[seeds.size()];
 		for (i = 0; i < seeds.size(); i++) {

@@ -10,8 +10,9 @@ import org.servalproject.ServalBatPhoneApplication;
 import org.servalproject.audio.AudioPlayer;
 import org.servalproject.audio.AudioRecorder;
 import org.servalproject.audio.Oslec;
-import org.servalproject.auth.AuthToken;
 import org.servalproject.batphone.VoMP.State;
+import org.servalproject.servald.AbstractId.InvalidHexException;
+import org.servalproject.servald.AuthToken;
 import org.servalproject.servald.DnaResult;
 import org.servalproject.servald.Identity;
 import org.servalproject.servald.Peer;
@@ -124,7 +125,13 @@ public class CallHandler {
 			args.next(); // local_session
 			String hex = args.next();
 			Log.i("CallHandler", "Got auth token: " + hex);
-			AuthToken token = new AuthToken(hex);
+			AuthToken token = null;
+			try {
+				token = new AuthToken(hex);
+			} catch (InvalidHexException e) {
+				Log.e("CallHandler", "Received invalid AuthToken from ServalD",
+						e);
+			}
 			CallHandler call = ServalBatPhoneApplication.context.callHandler;
 			if (call != null) {
 				call.authToken = token;
