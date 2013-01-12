@@ -36,8 +36,7 @@ public class AuthSymbols extends Activity {
 
 	private Random rand = new Random();
 
-	private SymbolGenerator yours;
-	private SymbolGenerator theirs;
+	private SymbolGenerator symgen;
 	private SymbolGenerator dummy;
 
 	private TextView group;
@@ -69,17 +68,11 @@ public class AuthSymbols extends Activity {
 					+ " not set");
 		}
 		SymbolGeneratorFactory factory = SymbolGenerators.get().get(name);
-		Random secrand = new Random(1234); // XXX session key goes here
-		if (ServalBatPhoneApplication.context.callHandler.initiated) {
-			state = State.THEM; // These are reversed, since next is called
-								// before the first symbol.
-			yours = factory.create(new Random(secrand.nextLong()));
-			theirs = factory.create(new Random(secrand.nextLong()));
-		} else {
-			state = State.YOU;
-			theirs = factory.create(new Random(secrand.nextLong()));
-			yours = factory.create(new Random(secrand.nextLong()));
-		}
+		symgen = factory.create(new AuthTokenRandom(
+				ServalBatPhoneApplication.context.callHandler.getAuthToken()));
+		state = ServalBatPhoneApplication.context.callHandler.initiated ? State.THEM
+				: State.YOU; // These are reversed, since next is called before
+								// the first symbol.
 		dummy = factory.create(rand);
 
 		group = (TextView) findViewById(R.id.auth_symbol_num);
@@ -149,13 +142,12 @@ public class AuthSymbols extends Activity {
 
 	private void correct() {
 		total++;
+		entropy += symgen.getEntropy();
 		switch (state) {
 		case YOU:
-			entropy += yours.getEntropy();
 			youSucceeded = true;
 			break;
 		case THEM:
-			entropy += theirs.getEntropy();
 			theySucceeded = true;
 			break;
 		}
@@ -213,7 +205,7 @@ public class AuthSymbols extends Activity {
 		case YOU:
 			title.setText(R.string.auth_your_symbol_title);
 			symbol.removeAllViews();
-			symbol.addView(yours.next().getView(this, null));
+			symbol.addView(symgen.next().getView(this, null));
 			symbol.setVisibility(View.VISIBLE);
 			possibleSymbolsGrid.setVisibility(View.GONE);
 			noMatch.setVisibility(View.GONE);
@@ -227,7 +219,7 @@ public class AuthSymbols extends Activity {
 			trueSymbol = rand.nextInt(possibleSymbols.length);
 			for (int i = 0; i < possibleSymbols.length; i++) {
 				if (i == trueSymbol) {
-					possibleSymbols[i] = theirs.next();
+					possibleSymbols[i] = symgen.next();
 				} else {
 					possibleSymbols[i] = dummy.next();
 				}

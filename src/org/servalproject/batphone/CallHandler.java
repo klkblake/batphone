@@ -10,6 +10,7 @@ import org.servalproject.ServalBatPhoneApplication;
 import org.servalproject.audio.AudioPlayer;
 import org.servalproject.audio.AudioRecorder;
 import org.servalproject.audio.Oslec;
+import org.servalproject.auth.AuthToken;
 import org.servalproject.batphone.VoMP.State;
 import org.servalproject.servald.DnaResult;
 import org.servalproject.servald.Identity;
@@ -38,6 +39,7 @@ public class CallHandler {
 	String name;
 
 	int local_id = 0;
+	AuthToken authToken;
 	VoMP.State local_state = State.NoSuchCall;
 	VoMP.State remote_state = State.NoSuchCall;
 	VoMP.Codec codec = VoMP.Codec.Signed16;
@@ -115,8 +117,25 @@ public class CallHandler {
 		}
 	}
 
+	private static class AuthTokenHandler implements ServalDMonitor.Message {
+		@Override
+		public int message(String cmd, Iterator<String> args, InputStream in,
+				int dataLength) throws IOException {
+			args.next(); // local_session
+			String hex = args.next();
+			Log.i("CallHandler", "Got auth token: " + hex);
+			AuthToken token = new AuthToken(hex);
+			CallHandler call = ServalBatPhoneApplication.context.callHandler;
+			if (call != null) {
+				call.authToken = token;
+			}
+			return 0;
+		}
+	}
+
 	public static void registerMessageHandlers(ServalDMonitor monitor) {
 		monitor.handlers.put("CALLFROM", new IncomingCall());
+		monitor.handlers.put("AUTHTOKEN", new AuthTokenHandler());
 	}
 
 	private CallHandler(Peer peer) {
@@ -478,6 +497,10 @@ public class CallHandler {
 
 	public long getCallStarted() {
 		return callStarted;
+	}
+
+	public AuthToken getAuthToken() {
+		return authToken;
 	}
 
 }
