@@ -183,7 +183,10 @@
             <intent-filter>
 	            <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT" />
-	            <data android:mimeType="vnd.android.cursor.item/org.servalproject.unsecuredSid"/>
+	            <data android:mimeType="vnd.android.cursor.item/org.servalproject.sidAuthFailed"/>
+	            <data android:mimeType="vnd.android.cursor.item/org.servalproject.sidAuthNone"/>
+	            <data android:mimeType="vnd.android.cursor.item/org.servalproject.sidAuthVoice"/>
+	            <data android:mimeType="vnd.android.cursor.item/org.servalproject.sidAuthFull"/>
 	        </intent-filter>
 	    </activity>
 	    
@@ -366,6 +369,13 @@
 		<activity android:name=".auth.AuthIntro"></activity>
 		<activity android:name=".auth.AuthSymbols"></activity>
 		<activity android:name=".auth.AuthFinished"></activity>
+		<activity android:name=".auth.RevokeAuth">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW"/>
+				<category android:name="android.intent.category.DEFAULT"/>
+				<data android:mimeType="vnd.android.cursor.item/org.servalproject.authState"/>
+			</intent-filter>
+		</activity>
 
     </application>
 

@@ -62,4 +62,10 @@
 
 		You should not discuss anything confidential in this call.</string>
 	<string name="auth_finished_button">Take me back to my call</string>
+	<string name="auth_revoke_title">Revoke Authentication</string>
+	<string name="auth_revoke_text">Are you sure you want to revoke this
+		person\'s authentication?</string>
+	<string name="auth_revoke_image">Contact Image</string>
+	<string name="auth_revoke_confirm">Revoke Authentication</string>
+	<string name="auth_revoke_cancel">Cancel</string>
 </resources>

@@ -133,7 +133,14 @@ public class Peer implements IPeer {
 		if (contactId == -1) {
 			contactId = AccountService.addContact(
 					context, getContactName(), sid,
-					did);
+					did, authState);
+		}
+	}
+
+	public void updateAuthState(Context context) {
+		if (contactId != -1) {
+			AccountService.setContactAuthState(context.getContentResolver(),
+					contactId, authState);
 		}
 	}
 }

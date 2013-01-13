@@ -89,7 +89,7 @@ public class DnaResult implements IPeer {
 		if (local && peer.contactId == -1) {
 			peer.contactId = AccountService.addContact(
 					context, name, getSubscriberId(),
-					did);
+					did, peer.authState);
 		}
 	}
 

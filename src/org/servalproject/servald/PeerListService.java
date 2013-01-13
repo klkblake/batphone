@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.servalproject.account.AccountService;
+import org.servalproject.auth.AuthState;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -120,12 +121,14 @@ public class PeerListService {
 
 		boolean changed = false;
 		String contactName = null;
+		AuthState authState = AuthState.None;
 
 		if (contactId >= 0) {
 			contactName = AccountService
 					.getContactName(
 							resolver,
 							p.contactId);
+			authState = AccountService.getContactAuthState(resolver, contactId);
 		}
 
 		if (p.contactId != contactId) {
@@ -138,6 +141,12 @@ public class PeerListService {
 			changed = true;
 			p.setContactName(contactName);
 		}
+
+		if (p.authState != authState) {
+			changed = true;
+			p.authState = authState;
+		}
+
 		return changed;
 	}
 

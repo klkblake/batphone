@@ -14,7 +14,6 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -113,9 +112,9 @@ public class UnsecuredCall extends Activity {
 								new String[] {
 									ContactsContract.Data.DATA1
 								},
-								ContactsContract.Data.MIMETYPE + " = ?",
+								ContactsContract.Data.MIMETYPE + " LIKE ?",
 								new String[] {
-									AccountService.SID_FIELD_MIMETYPE
+									AccountService.SID_FIELD_MIMETYPE_PATTERN
 								},
 								null);
 					try {
@@ -232,6 +231,7 @@ public class UnsecuredCall extends Activity {
 			case AuthResult.BACK:
 				break;
 			}
+			callHandler.remotePeer.updateAuthState(this);
 			updateAuth();
 		}
 	}
