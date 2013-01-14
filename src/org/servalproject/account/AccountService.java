@@ -20,6 +20,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -128,6 +131,14 @@ public class AccountService extends Service {
 		} finally {
 			cursor.close();
 		}
+	}
+
+	public static Bitmap getContactPhoto(ContentResolver resolver,
+			long contactId) {
+		return BitmapFactory.decodeStream(ContactsContract.Contacts
+				.openContactPhotoInputStream(resolver, Uri
+				.withAppendedPath(ContactsContract.Contacts.CONTENT_URI,
+								Long.toString(contactId))));
 	}
 
 	public static SubscriberId getContactSid(ContentResolver resolver,

@@ -16,6 +16,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -27,6 +28,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Chronometer;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class UnsecuredCall extends Activity {
@@ -36,10 +38,12 @@ public class UnsecuredCall extends Activity {
 	ServalBatPhoneApplication app;
 	CallHandler callHandler;
 
+	private ImageView remote_photo_1;
 	private TextView remote_name_1;
 	private TextView remote_number_1;
 	private TextView callstatus_1;
 	private TextView action_1;
+	private ImageView remote_photo_2;
 	private TextView remote_name_2;
 	private TextView remote_number_2;
 	private TextView callstatus_2;
@@ -154,10 +158,12 @@ public class UnsecuredCall extends Activity {
 		setContentView(R.layout.call_layered);
 
 		chron = (Chronometer) findViewById(R.id.call_time);
+		remote_photo_1 = (ImageView) findViewById(R.id.caller_image);
 		remote_name_1 = (TextView) findViewById(R.id.caller_name);
 		remote_number_1 = (TextView) findViewById(R.id.ph_no_display);
 		callstatus_1 = (TextView) findViewById(R.id.call_status);
 		action_1 = (TextView) findViewById(R.id.call_action_type);
+		remote_photo_2 = (ImageView) findViewById(R.id.caller_image_incoming);
 		remote_name_2 = (TextView) findViewById(R.id.caller_name_incoming);
 		remote_number_2 = (TextView) findViewById(R.id.ph_no_display_incoming);
 		callstatus_2 = (TextView) findViewById(R.id.call_status_incoming);
@@ -243,6 +249,14 @@ public class UnsecuredCall extends Activity {
 	}
 
 	private void updatePeerDisplay() {
+		if (callHandler.remotePeer.contactId != -1) {
+			Bitmap photo = AccountService.getContactPhoto(
+					getContentResolver(), callHandler.remotePeer.contactId);
+			if (photo != null) {
+				remote_photo_1.setImageBitmap(photo);
+				remote_photo_2.setImageBitmap(photo);
+			}
+		}
 		remote_name_1.setText(callHandler.remotePeer.getContactName());
 		remote_number_1.setText(callHandler.remotePeer.did);
 		remote_name_2.setText(callHandler.remotePeer.getContactName());

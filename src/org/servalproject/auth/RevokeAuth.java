@@ -9,6 +9,7 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -18,12 +19,14 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class RevokeAuth extends Activity {
 	public static final String TAG = "RevokeAuth";
 	private long contactId;
 	private Peer peer;
+	private ImageView photo;
 	private TextView name;
 	private TextView number;
 
@@ -55,6 +58,7 @@ public class RevokeAuth extends Activity {
 		peer = PeerListService.getPeer(getContentResolver(),
 				AccountService.getContactSid(r, contactId));
 
+		photo = (ImageView) findViewById(R.id.auth_revoke_image);
 		name = (TextView) findViewById(R.id.auth_revoke_name);
 		number = (TextView) findViewById(R.id.auth_revoke_number);
 
@@ -95,6 +99,12 @@ public class RevokeAuth extends Activity {
 	}
 
 	private void updateContactDisplay() {
+		Bitmap contactPhoto = AccountService.getContactPhoto(
+				getContentResolver(), contactId);
+		if (contactPhoto != null) {
+			photo.setImageBitmap(contactPhoto);
+		}
+
 		String contactName = peer.getContactName();
 		if (contactName == null || contactName.equals("")) {
 			contactName = peer.sid.abbreviation();
