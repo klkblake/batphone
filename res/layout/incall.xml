@@ -100,28 +100,23 @@
 
     <!-- Footer -->
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/cancel_call_button"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp" >
-
         <TextView
             android:id="@+id/auth_state"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
             android:text="@string/auth_state_none"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textColor="@color/red" />
 
         <Button
             android:id="@+id/auth_button"
-            style="?android:attr/buttonStyleSmall"
+            style="@style/sbtnauth"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
             android:text="@string/auth_begin_button" />
-
-    </LinearLayout>
 
 </RelativeLayout>

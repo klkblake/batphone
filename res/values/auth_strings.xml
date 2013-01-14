@@ -23,19 +23,19 @@
 	<string name="auth_state_none">Not Authenticated</string>
 	<string name="auth_state_voice">Voice Authenticated</string>
 	<string name="auth_state_full">Authenticated</string>
-	<string name="auth_begin_button">Begin Authentication</string>
+	<string name="auth_begin_button">Begin\nAuthentication</string>
 
 	<!-- Auth Wizard -->
 	<string name="auth_intro_title">Voice Authentication</string>
 	<string name="auth_intro">To begin, please ask
 		your conversational partner to press the \"Begin Authentication\"
-		button if they have not already done so.\n\n
+		button if they have not already done so.\n
 
 		On the next screens, you will be shown a series of words or
 		symbols. Some you will need to read out to your partner, and
 		some your partner will read out to you. You only need to verify
 		that what your partner reads to you matches what you are
-		shown.\n\n
+		shown.\n
 
 		You can select what set of words or symbols you would like to
 		use from the dropdown below. Once you and your partner have
