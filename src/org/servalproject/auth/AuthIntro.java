@@ -1,7 +1,5 @@
 package org.servalproject.auth;
 
-import java.util.Map;
-
 import org.servalproject.R;
 import org.servalproject.ServalBatPhoneApplication;
 
@@ -33,11 +31,11 @@ public class AuthIntro extends Activity {
 		}
 
 		final Spinner generator = (Spinner) findViewById(R.id.auth_generator_spinner);
-		Map<String, SymbolGeneratorFactory> symgens = SymbolGenerators.get();
 		generator
-				.setAdapter(new ArrayAdapter<String>(this,
-						android.R.layout.simple_spinner_item, symgens.keySet()
-								.toArray(new String[symgens.size()])));
+				.setAdapter(new ArrayAdapter<SymbolGeneratorFactory>(this,
+						R.layout.multiline_spinner_item,
+						SymbolGenerators
+								.get()));
 
 		Button cancel = (Button) findViewById(R.id.auth_cancel_button);
 		cancel.setOnClickListener(new OnClickListener() {
@@ -52,8 +50,8 @@ public class AuthIntro extends Activity {
 		next.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				String selected = (String) generator.getSelectedItem();
-				if (selected == null) {
+				int selected = generator.getSelectedItemPosition();
+				if (selected == Spinner.INVALID_POSITION) {
 					AlertDialog.Builder builder = new AlertDialog.Builder(
 							AuthIntro.this);
 					builder.setMessage(R.string.auth_no_generator);
@@ -63,7 +61,7 @@ public class AuthIntro extends Activity {
 				Intent intent = new Intent(
 						ServalBatPhoneApplication.context,
 						AuthSymbols.class);
-				intent.putExtra(AuthSymbols.EXTRA_SYMBOL_GENERATOR_NAME,
+				intent.putExtra(AuthSymbols.EXTRA_SYMBOL_GENERATOR_INDEX,
 						selected);
 				startActivityForResult(intent, REQUEST);
 			}

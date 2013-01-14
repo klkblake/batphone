@@ -22,7 +22,7 @@ import android.widget.Toast;
 public class AuthSymbols extends Activity {
 
 	private static final int REQUEST = 1;
-	public static final String EXTRA_SYMBOL_GENERATOR_NAME = "org.servalproject.auth.symbol_generator";
+	public static final String EXTRA_SYMBOL_GENERATOR_INDEX = "org.servalproject.auth.symbol_generator";
 
 	private static final int MIN_ENTROPY = 256;
 	private static final int MAX_ERRORS = 1;
@@ -57,18 +57,20 @@ public class AuthSymbols extends Activity {
 	private boolean theySucceeded = false;
 	private int errors = 0;
 	private double entropy = 0;
+	private double entropyDelta;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.auth_symbol);
 
-		String name = getIntent().getStringExtra(EXTRA_SYMBOL_GENERATOR_NAME);
-		if (name == null) {
-			throw new IllegalArgumentException(EXTRA_SYMBOL_GENERATOR_NAME
+		int index = getIntent().getIntExtra(EXTRA_SYMBOL_GENERATOR_INDEX, -1);
+		if (index == -1) {
+			throw new IllegalArgumentException(EXTRA_SYMBOL_GENERATOR_INDEX
 					+ " not set");
 		}
-		SymbolGeneratorFactory factory = SymbolGenerators.get().get(name);
+		SymbolGeneratorFactory factory = SymbolGenerators.get()[index];
+		entropyDelta = factory.entropy;
 		symgen = factory.create(new AbstractIdRandom(
 				ServalBatPhoneApplication.context.callHandler.getAuthToken()));
 		state = ServalBatPhoneApplication.context.callHandler.initiated ? State.THEM
@@ -143,7 +145,7 @@ public class AuthSymbols extends Activity {
 
 	private void correct() {
 		total++;
-		entropy += symgen.getEntropy();
+		entropy += entropyDelta;
 		switch (state) {
 		case YOU:
 			youSucceeded = true;

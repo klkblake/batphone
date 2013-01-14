@@ -12,11 +12,4 @@ public interface SymbolGenerator {
 	 * @return a view containing the generated symbol
 	 */
 	Symbol next();
-
-	/**
-	 * Return the amount of entropy in each symbol block
-	 *
-	 * @return the amount of entropy in bits
-	 */
-	double getEntropy();
 }

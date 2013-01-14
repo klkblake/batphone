@@ -2,7 +2,14 @@ package org.servalproject.auth;
 
 import java.util.Random;
 
-public interface SymbolGeneratorFactory {
+public abstract class SymbolGeneratorFactory {
+	String description;
+
+	/**
+	 * The amount of entropy in each symbol block in bits
+	 */
+	double entropy;
+
 	/**
 	 * Create a SymbolGenerator for a call
 	 *
@@ -10,5 +17,10 @@ public interface SymbolGeneratorFactory {
 	 *            The PRNG to use
 	 * @return the new SymbolGenerator
 	 */
-	SymbolGenerator create(Random rand);
+	public abstract SymbolGenerator create(Random rand);
+
+	@Override
+	public String toString() {
+		return description;
+	}
 }

@@ -25,7 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/auth_intro"
         android:layout_centerHorizontal="true"
-        tools:listitem="@android:layout/simple_spinner_item" />
+        tools:listitem="@layout/multiline_spinner_item" />
 
     <Button
         android:id="@+id/auth_cancel_button"

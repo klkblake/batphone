@@ -1,16 +1,22 @@
 package org.servalproject.auth;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SymbolGenerators {
-	private static Map<String, SymbolGeneratorFactory> symgens = new HashMap<String, SymbolGeneratorFactory>();
+	private static SymbolGeneratorFactory symgens[];
 
 	static {
-		symgens.putAll(WordGenerator.getFactories());
+		List<SymbolGeneratorFactory> l = new ArrayList<SymbolGeneratorFactory>();
+
+		l.add(WordGeneratorFactory.load("normal"));
+		l.add(WordGeneratorFactory.load("basic"));
+		l.add(WordGeneratorFactory.load("comprehensive"));
+
+		symgens = l.toArray(new SymbolGeneratorFactory[l.size()]);
 	}
 
-	public static Map<String, SymbolGeneratorFactory> get() {
+	public static SymbolGeneratorFactory[] get() {
 		return symgens;
 	}
 }
