@@ -2,25 +2,25 @@
 <ContactsSource xmlns:android="http://schemas.android.com/apk/res/android">
 	<ContactsDataKind
 	    android:mimeType="vnd.android.cursor.item/org.servalproject.sidAuthFailed"
-	    android:icon="@drawable/ic_launcher"
+	    android:icon="@drawable/ic_launcher_auth_failed"
 	    android:summaryColumn="data2"
 	    android:detailColumn="data3"
 	/>
 	<ContactsDataKind
 	    android:mimeType="vnd.android.cursor.item/org.servalproject.sidAuthNone"
-	    android:icon="@drawable/ic_launcher"
+	    android:icon="@drawable/ic_launcher_auth_none"
 	    android:summaryColumn="data2"
 	    android:detailColumn="data3"
 	/>
 	<ContactsDataKind
 	    android:mimeType="vnd.android.cursor.item/org.servalproject.sidAuthVoice"
-	    android:icon="@drawable/ic_launcher"
+	    android:icon="@drawable/ic_launcher_auth_voice"
 	    android:summaryColumn="data2"
 	    android:detailColumn="data3"
 	/>
 	<ContactsDataKind
 	    android:mimeType="vnd.android.cursor.item/org.servalproject.sidAuthFull"
-	    android:icon="@drawable/ic_launcher"
+	    android:icon="@drawable/ic_launcher_auth_full"
 	    android:summaryColumn="data2"
 	    android:detailColumn="data3"
 	/>
