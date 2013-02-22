@@ -128,6 +128,7 @@ public class SetPhoneNumber extends Activity {
 										response.onResult(result);
 									}
 								}
+								AccountService.enableSync(account);
 							}
 
 							return true;

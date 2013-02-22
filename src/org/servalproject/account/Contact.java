@@ -59,9 +59,9 @@ public class Contact {
 		this.resolver = resolver;
 	}
 
-	public static Contact getContact(ContentResolver resolver, Uri rawUri) {
+	public static Contact getContact(ContentResolver resolver, Uri rawDataUri) {
 		Contact contact = new Contact(resolver);
-		Cursor cursor = contact.query(rawUri, new String[] {
+		Cursor cursor = contact.query(rawDataUri, new String[] {
 				Data.RAW_CONTACT_ID, Data.CONTACT_ID, Data.LOOKUP_KEY
 		}, null);
 		try {
@@ -228,8 +228,6 @@ public class Contact {
 	}
 
 	// Get a URI that can be used to get this object
-	// TODO implement Parcelable instead. Or remove the code that uses this,
-	// since it seems to be useless.
 	public Uri getRawDataUri() {
 		return rawContactDataUri;
 	}
@@ -445,7 +443,8 @@ public class Contact {
 		if (account == null) {
 			throw new IllegalStateException();
 		}
-		Log.i("BatPhone", "Adding contact: " + name);
+		Log.i("BatPhone", "Adding contact: " + name + " (" + rawContactUri
+				+ ")");
 		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 
 		// Create our RawContact
@@ -540,5 +539,4 @@ public class Contact {
 			cursor.close();
 		}
 	}
-
 }

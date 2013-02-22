@@ -9,10 +9,12 @@ import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
 import android.accounts.NetworkErrorException;
 import android.app.Service;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.ContactsContract;
 
 public class AccountService extends Service {
 	private static AccountAuthenticator authenticator = null;
@@ -25,6 +27,13 @@ public class AccountService extends Service {
 		if (accounts == null || accounts.length == 0)
 			return null;
 		return accounts[0];
+	}
+
+	public static void enableSync(Account account) {
+		ContentResolver.setIsSyncable(account,
+				ContactsContract.AUTHORITY, 1);
+		ContentResolver.setSyncAutomatically(account,
+				ContactsContract.AUTHORITY, true);
 	}
 
 	private class AccountAuthenticator extends AbstractAccountAuthenticator {

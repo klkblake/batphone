@@ -46,6 +46,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.servalproject.account.AccountService;
 import org.servalproject.batphone.CallHandler;
 import org.servalproject.meshms.IncomingMeshMS;
 import org.servalproject.rhizome.Rhizome;
@@ -59,10 +60,12 @@ import org.servalproject.system.ChipsetDetection;
 import org.servalproject.system.CoreTask;
 import org.servalproject.system.NetworkManager;
 
+import android.accounts.Account;
 import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -74,6 +77,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -614,6 +618,16 @@ public class ServalBatPhoneApplication extends Application {
 					+ lastModified);
 
 			ed.commit();
+			
+			// Enable automatic syncing if upgrading from a version where
+			// syncing didn't do anything.
+			Account account = AccountService.getAccount(context);
+			if (account != null
+					&& ContentResolver.getIsSyncable(account,
+							ContactsContract.AUTHORITY) <= 0) {
+				AccountService.enableSync(account);
+			}
+
 
 			setState(State.Off);
 			getReady();
