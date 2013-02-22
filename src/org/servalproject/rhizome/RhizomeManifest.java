@@ -217,7 +217,7 @@ public abstract class RhizomeManifest implements Cloneable {
 	protected static Long parseLong(String fieldName, String text) throws RhizomeManifestParseException {
 		try {
 			text = parseNonEmpty(fieldName, text);
-			return text == null ? null : new Long(text);
+			return text == null ? null : Long.valueOf(text);
 		}
 		catch (NumberFormatException e) {
 			throw new RhizomeManifestParseException("malformed " + fieldName + " (long): '" + text + "'", e);

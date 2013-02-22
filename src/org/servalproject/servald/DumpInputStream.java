@@ -24,7 +24,8 @@ public class DumpInputStream extends InputStream {
 
 	private void log(byte value) {
 		hex.append(Integer.toHexString(value & 0xFF)).append(' ');
-		if (value >= 32 && value <= 128)
+		// Equivalent to 32 <= value <= 128 if bytes were unsigned
+		if (value >= 32 || value == -128)
 			printable.append((char) value);
 		else
 			printable.append('.');

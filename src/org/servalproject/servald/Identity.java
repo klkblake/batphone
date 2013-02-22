@@ -17,44 +17,54 @@ public class Identity {
 	private String did;
 	private boolean main;
 
-	private static List<Identity> identities;
+	private static List<Identity> identities = new ArrayList<Identity>();
+	private static boolean initialized = false;
 
-	public static Identity createIdentity() throws InvalidHexException, ServalDFailureException {
-		ServalD.KeyringAddResult result = ServalD.keyringAdd(); // TODO provide identity PIN
+	public static Identity createIdentity() throws InvalidHexException,
+			ServalDFailureException {
+		getIdentities();
+		ServalD.KeyringAddResult result = ServalD.keyringAdd(); // TODO provide
+																// identity PIN
 		Identity id = new Identity(result.subscriberId);
 		id.did = result.did;
 		id.name = result.name;
-		id.main = Identity.identities.size() == 0;
-		Identity.identities.add(id);
+		synchronized (identities) {
+			id.main = Identity.identities.size() == 0;
+			Identity.identities.add(id);
+		}
 		return id;
 	}
 
+	// All usage of the returned list should be synchronized on the list.
 	public static List<Identity> getIdentities() {
-		if (identities == null) {
-			identities = new ArrayList<Identity>();
-			try {
-				// TODO provide list of unlock PINs
-				ServalD.KeyringListResult result = ServalD.keyringList();
-				for (ServalD.KeyringListResult.Entry ent: result.entries) {
-					Identity id = new Identity(ent.subscriberId);
-					id.did = ent.did;
-					id.name = ent.name;
-					id.main = identities.size() == 0;
-					identities.add(id);
+		synchronized (identities) {
+			if (!initialized) {
+				try {
+					// TODO provide list of unlock PINs
+					ServalD.KeyringListResult result = ServalD.keyringList();
+					for (ServalD.KeyringListResult.Entry ent : result.entries) {
+						Identity id = new Identity(ent.subscriberId);
+						id.did = ent.did;
+						id.name = ent.name;
+						id.main = identities.size() == 0;
+						identities.add(id);
+					}
+				} catch (ServalDFailureException e) {
+					Log.e("Identities", e.toString(), e);
 				}
-			}
-			catch (ServalDFailureException e) {
-				Log.e("Identities", e.toString(), e);
+				initialized = true;
 			}
 		}
 		return identities;
 	}
 
-	public static Identity getMainIdentity() {
+	public static synchronized Identity getMainIdentity() {
 		getIdentities();
-		if (identities.size() < 1)
-			return null;
-		return identities.get(0);
+		synchronized (identities) {
+			if (identities.size() < 1)
+				return null;
+			return identities.get(0);
+		}
 	}
 
 	private Identity(SubscriberId sid) {
@@ -80,7 +90,9 @@ public class Identity {
 			throw new IllegalArgumentException(
 					"That number cannot be dialed as it will be redirected to a cellular emergency service.");
 
-		ServalD.KeyringAddResult result = ServalD.keyringSetDidName(this.subscriberId, did == null ? "" : did, name == null ? "" : name);
+		ServalD.KeyringAddResult result = ServalD.keyringSetDidName(
+				this.subscriberId, did == null ? "" : did, name == null ? ""
+						: name);
 		this.did = result.did;
 		this.name = result.name;
 

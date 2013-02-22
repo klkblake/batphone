@@ -200,11 +200,9 @@ public class SetPhoneNumber extends Activity {
 		String existingName = null;
 		String existingNumber = null;
 
-		List<Identity> identities = Identity.getIdentities();
+		identity = Identity.getMainIdentity();
 
-		if (identities.size() > 0) {
-			identity = identities.get(0);
-
+		if (identity != null) {
 			existingName = identity.getName();
 			existingNumber = identity.getDid();
 		} else {

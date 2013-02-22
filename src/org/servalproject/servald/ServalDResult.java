@@ -21,11 +21,8 @@
 package org.servalproject.servald;
 
 import java.util.Arrays;
-import java.util.Map;
 import java.util.HashMap;
-import java.lang.Boolean;
-import java.lang.Integer;
-import java.lang.Long;
+import java.util.Map;
 
 /** Represents the result of invoking servald via the JNI command-line interface.  The 'args'
  * attribute contains a copy of the arguments that were passed to the call that produced this
@@ -137,7 +134,7 @@ public class ServalDResult
 	public long getFieldLong(String fieldName) throws ServalDInterfaceError {
 		String value = getFieldString(fieldName);
 		try {
-			return new Long(value);
+			return Long.valueOf(value);
 		}
 		catch (NumberFormatException e) {
 			throw new ServalDInterfaceError("field " + fieldName + "='" + value + "' is not of type long", this);
@@ -147,7 +144,7 @@ public class ServalDResult
 	public int getFieldInt(String fieldName) throws ServalDInterfaceError {
 		String value = getFieldString(fieldName);
 		try {
-			return new Integer(value);
+			return Integer.valueOf(value);
 		}
 		catch (NumberFormatException e) {
 			throw new ServalDInterfaceError("field " + fieldName + "='" + value + "' is not of type int", this);

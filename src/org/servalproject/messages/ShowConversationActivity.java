@@ -114,7 +114,8 @@ public class ShowConversationActivity extends ListActivity {
 
 		if (Intent.ACTION_SENDTO.equals(mIntent.getAction())) {
 			Uri uri = mIntent.getData();
-			Log.v(TAG, "Received " + mIntent.getAction() + " " + uri.toString());
+			Log.v(TAG, "Received " + mIntent.getAction() + " "
+					+ (uri == null ? "null" : uri.toString()));
 			if (uri != null) {
 				if (uri.getScheme().equals("sms")
 						|| uri.getScheme().equals("smsto")) {

@@ -41,7 +41,6 @@ import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -178,9 +177,8 @@ public class ServalBatPhoneApplication extends Application {
 	}
 
 	public boolean getReady() {
-		List<Identity> identities = Identity.getIdentities();
-		if (identities.size() >= 1) {
-			Identity main = identities.get(0);
+		Identity main = Identity.getMainIdentity();
+		if (main != null) {
 			Intent intent = new Intent("org.servalproject.SET_PRIMARY");
 			intent.putExtra("did", main.getDid());
 			intent.putExtra("sid", main.subscriberId.toString());

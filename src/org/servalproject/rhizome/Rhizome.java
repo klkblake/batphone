@@ -26,6 +26,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.servalproject.Control;
 import org.servalproject.ServalBatPhoneApplication;
@@ -264,14 +265,18 @@ public class Rhizome {
 
 			Identity self = null;
 			{
-				for (Identity i : Identity.getIdentities()) {
-					if (i.subscriberId.equals(sender)) {
-						Log.e(Rhizome.TAG, "Ignoring message log that we sent");
-						return false;
-					}
+				List<Identity> identities = Identity.getIdentities();
+				synchronized (identities) {
+					for (Identity i : identities) {
+						if (i.subscriberId.equals(sender)) {
+							Log.e(Rhizome.TAG,
+									"Ignoring message log that we sent");
+							return false;
+						}
 
-					if (i.subscriberId.equals(recipient))
-						self = i;
+						if (i.subscriberId.equals(recipient))
+							self = i;
+					}
 				}
 			}
 

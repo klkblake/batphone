@@ -149,6 +149,8 @@ public class AudioRecorder implements Runnable {
 					case Alaw8:
 						block = new byte[20 * 8];
 						break;
+					default:
+						throw new IllegalArgumentException();
 					}
 					Log.v(TAG, "Starting to read audio in " + block.length
 							+ " byte blocks");
