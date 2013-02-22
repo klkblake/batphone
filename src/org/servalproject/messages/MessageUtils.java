@@ -20,7 +20,6 @@
 package org.servalproject.messages;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.servalproject.meshms.SimpleMeshMS;
 import org.servalproject.provider.MessagesContract;
@@ -29,16 +28,11 @@ import org.servalproject.servald.Identity;
 import org.servalproject.servald.SubscriberId;
 
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.provider.ContactsContract;
-import android.provider.ContactsContract.PhoneLookup;
 import android.util.Log;
 
 /**
@@ -305,75 +299,6 @@ public class MessageUtils {
 			throw new IOException("Unable to insert message");
 
 		return threadId;
-	}
-
-	/**
-	 * method used to lookup the id of a contact photo id
-	 *
-	 * @param context
-	 *            a context object used to get a content resolver
-	 * @param phoneNumber
-	 *            the phone number of the contact
-	 *
-	 * @return the id of the contact
-	 */
-	public static long lookupPhotoId(Context context, String phoneNumber) {
-
-		long mPhotoId = -1;
-
-		Uri mLookupUri = Uri.withAppendedPath(PhoneLookup.CONTENT_FILTER_URI,
-				Uri.encode(phoneNumber));
-
-		String[] mProjection = new String[2];
-		mProjection[0] = PhoneLookup._ID;
-		mProjection[1] = PhoneLookup.PHOTO_ID;
-
-		Cursor mCursor = context.getContentResolver().query(
-				mLookupUri,
-				mProjection,
-				null,
-				null,
-				null);
-
-		if (mCursor.getCount() > 0) {
-			mCursor.moveToFirst();
-
-			mPhotoId = mCursor.getLong(mCursor
-					.getColumnIndex(PhoneLookup._ID));
-
-			mCursor.close();
-		}
-
-		return mPhotoId;
-	}
-
-	/**
-	 * retrieve the contact photo given a contact id
-	 *
-	 * @param context
-	 *            a context object used to get a content resolver
-	 * @param id
-	 *            the id number of contact
-	 *
-	 * @return the bitmap of the photo or null
-	 */
-	public static Bitmap loadContactPhoto(Context context, long id) {
-		try {
-			Uri uri = ContentUris.withAppendedId(
-					ContactsContract.Contacts.CONTENT_URI, id);
-
-			InputStream input = ContactsContract.Contacts
-					.openContactPhotoInputStream(context.getContentResolver(),
-							uri);
-			if (input == null) {
-				return null;
-			}
-			return BitmapFactory.decodeStream(input);
-		} catch (Exception e) {
-			// catch any security exceptions in APIv14
-			Log.e("MessageUtils", e.getMessage(), e);
-			return null;
-		}
 	}
 
 	public static class MessageIntentException extends Exception {

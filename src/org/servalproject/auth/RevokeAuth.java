@@ -1,14 +1,13 @@
 package org.servalproject.auth;
 
 import org.servalproject.R;
-import org.servalproject.account.AccountService;
+import org.servalproject.account.Contact;
 import org.servalproject.servald.Peer;
 import org.servalproject.servald.PeerListService;
 
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -24,7 +23,6 @@ import android.widget.TextView;
 
 public class RevokeAuth extends Activity {
 	public static final String TAG = "RevokeAuth";
-	private long contactId;
 	private Peer peer;
 	private ImageView photo;
 	private TextView name;
@@ -47,16 +45,8 @@ public class RevokeAuth extends Activity {
 		}
 		setContentView(R.layout.auth_revoke);
 		ContentResolver r = getContentResolver();
-		Cursor c = r.query(getIntent().getData(), new String[] {
-			ContactsContract.Data.CONTACT_ID
-		}, null, null, null);
-		if (c.moveToNext() == false) {
-			Log.e(TAG, "Could not get associated contact for " + data);
-			finish();
-		}
-		contactId = c.getLong(0);
-		peer = PeerListService.getPeer(getContentResolver(),
-				AccountService.getContactSid(r, contactId));
+		Contact contact = Contact.getContact(r, getIntent().getData());
+		peer = PeerListService.getPeer(getContentResolver(), contact.getSid());
 
 		photo = (ImageView) findViewById(R.id.auth_revoke_image);
 		name = (TextView) findViewById(R.id.auth_revoke_name);
@@ -66,8 +56,7 @@ public class RevokeAuth extends Activity {
 				.setOnClickListener(new OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						peer.authState = AuthState.None;
-						peer.updateAuthState(RevokeAuth.this);
+						peer.setAuthState(AuthState.None);
 						finish();
 					}
 				});
@@ -99,23 +88,17 @@ public class RevokeAuth extends Activity {
 	}
 
 	private void updateContactDisplay() {
-		Bitmap contactPhoto = AccountService.getContactPhoto(
-				getContentResolver(), contactId);
+		Bitmap contactPhoto = peer.contact.getPhoto();
 		if (contactPhoto != null) {
 			photo.setImageBitmap(contactPhoto);
 		}
 
-		String contactName = peer.getContactName();
+		String contactName = peer.getName();
 		if (contactName == null || contactName.equals("")) {
 			contactName = peer.sid.abbreviation();
 		}
 		name.setText(contactName);
 
-		String contactNumber = peer.did;
-		if (contactNumber == null || contactNumber.equals("")) {
-			contactNumber = AccountService.getContactNumber(
-					getContentResolver(), contactId);
-		}
-		number.setText(contactNumber);
+		number.setText(peer.getDid());
 	}
 }

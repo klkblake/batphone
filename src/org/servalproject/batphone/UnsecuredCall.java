@@ -2,7 +2,7 @@ package org.servalproject.batphone;
 
 import org.servalproject.R;
 import org.servalproject.ServalBatPhoneApplication;
-import org.servalproject.account.AccountService;
+import org.servalproject.account.Contact;
 import org.servalproject.auth.AuthFinished;
 import org.servalproject.auth.AuthIntro;
 import org.servalproject.auth.AuthResult;
@@ -16,12 +16,10 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -114,22 +112,9 @@ public class UnsecuredCall extends Activity {
 				if (Intent.ACTION_VIEW.equals(action)) {
 					// This activity has been triggered from clicking on a SID
 					// in contacts.
-					Cursor cursor = getContentResolver().query(
-								intent.getData(),
-								new String[] {
-									ContactsContract.Data.DATA1
-								},
-								ContactsContract.Data.MIMETYPE + " LIKE ?",
-								new String[] {
-									AccountService.SID_FIELD_MIMETYPE_PATTERN
-								},
-								null);
-					try {
-						if (cursor.moveToNext())
-							sid = new SubscriberId(cursor.getString(0));
-					} finally {
-						cursor.close();
-					}
+					Contact contact = Contact.getContact(getContentResolver(),
+							intent.getData());
+					sid = contact.getSid();
 
 				} else {
 					String sidString = intent.getStringExtra("sid");
@@ -179,7 +164,7 @@ public class UnsecuredCall extends Activity {
 				Intent intent = new Intent(ServalBatPhoneApplication.context,
 						AuthIntro.class);
 				intent.putExtra(AuthFinished.EXTRA_IN_CONTACTS,
-						callHandler.remotePeer.contactId != -1);
+						callHandler.remotePeer.contact.isAdded());
 				startActivityForResult(intent, AUTH_REQUEST);
 			}
 		});
@@ -233,10 +218,10 @@ public class UnsecuredCall extends Activity {
 		if (requestCode == AUTH_REQUEST) {
 			switch (resultCode) {
 			case AuthResult.SUCCESS:
-				callHandler.remotePeer.authState = AuthState.Voice;
+				callHandler.remotePeer.setAuthState(AuthState.Voice);
 				break;
 			case AuthResult.FAILURE:
-				callHandler.remotePeer.authState = AuthState.Failed;
+				callHandler.remotePeer.setAuthState(AuthState.Failed);
 				break;
 			case AuthResult.CANCELLED:
 			case AuthResult.BACK:
@@ -252,7 +237,6 @@ public class UnsecuredCall extends Activity {
 							.toString());
 				}
 			}
-			callHandler.remotePeer.updateAuthState(this);
 			updateAuth();
 		}
 	}
@@ -264,18 +248,15 @@ public class UnsecuredCall extends Activity {
 	}
 
 	private void updatePeerDisplay() {
-		if (callHandler.remotePeer.contactId != -1) {
-			Bitmap photo = AccountService.getContactPhoto(
-					getContentResolver(), callHandler.remotePeer.contactId);
-			if (photo != null) {
-				remote_photo_1.setImageBitmap(photo);
-				remote_photo_2.setImageBitmap(photo);
-			}
+		Bitmap photo = callHandler.remotePeer.contact.getPhoto();
+		if (photo != null) {
+			remote_photo_1.setImageBitmap(photo);
+			remote_photo_2.setImageBitmap(photo);
 		}
-		remote_name_1.setText(callHandler.remotePeer.getContactName());
-		remote_number_1.setText(callHandler.remotePeer.did);
-		remote_name_2.setText(callHandler.remotePeer.getContactName());
-		remote_number_2.setText(callHandler.remotePeer.did);
+		remote_name_1.setText(callHandler.remotePeer.getName());
+		remote_number_1.setText(callHandler.remotePeer.getDid());
+		remote_name_2.setText(callHandler.remotePeer.getName());
+		remote_number_2.setText(callHandler.remotePeer.getDid());
 
 		// Update the in call notification, but only if the call is still
 		// ongoing.
@@ -303,7 +284,7 @@ public class UnsecuredCall extends Activity {
 	}
 
 	private void updateAuth() {
-		AuthState s = callHandler.remotePeer.authState;
+		AuthState s = callHandler.remotePeer.getAuthState();
 		authState.setText(s.text);
 		authState.setTextColor(getResources().getColor(s.color));
 		if (s == AuthState.None

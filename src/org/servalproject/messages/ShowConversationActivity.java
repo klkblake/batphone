@@ -23,7 +23,7 @@ import java.io.IOException;
 
 import org.servalproject.R;
 import org.servalproject.ServalBatPhoneApplication;
-import org.servalproject.account.AccountService;
+import org.servalproject.account.Contact;
 import org.servalproject.meshms.IncomingMeshMS;
 import org.servalproject.meshms.OutgoingMeshMS;
 import org.servalproject.meshms.SimpleMeshMS;
@@ -143,12 +143,9 @@ public class ShowConversationActivity extends ListActivity {
 
 			if (recipientSid == null && did != null) {
 				// lookup the sid from the contacts database
-				long contactId = AccountService.getContactId(
-						getContentResolver(), did);
-				if (contactId >= 0)
-					recipientSid = AccountService.getContactSid(
-							getContentResolver(),
-							contactId);
+				Contact contact = Contact.getContact(getContentResolver(), did);
+				if (contact.isAdded())
+					recipientSid = contact.getSid();
 
 				if (recipientSid == null) {
 					// TODO scan the network first and only complain when you
@@ -268,7 +265,7 @@ public class ShowConversationActivity extends ListActivity {
 					main.subscriberId,
 					recipient.sid,
 					main.getDid(),
-					recipient.did,
+					recipient.getDid(),
 					System.currentTimeMillis(),
 					text.getText().toString()
 					);

@@ -2,6 +2,7 @@ package org.servalproject.batphone;
 
 import org.servalproject.R;
 import org.servalproject.ServalBatPhoneApplication;
+import org.servalproject.auth.AuthState;
 import org.servalproject.servald.Peer;
 import org.servalproject.servald.PeerListService;
 import org.servalproject.servald.SubscriberId;
@@ -60,9 +61,9 @@ public class CompletedCall extends Activity {
 		if (chron != null)
 			chron.setBase(SystemClock.elapsedRealtime() - duration_ms);
 		TextView remote_name = (TextView) findViewById(R.id.caller_name);
-		remote_name.setText(p.getContactName());
+		remote_name.setText(p.getName());
 		TextView remote_number = (TextView) findViewById(R.id.ph_no_display);
-		remote_number.setText(p.did);
+		remote_number.setText(p.getDid());
 
 		TextView callstatus = (TextView) findViewById(R.id.call_status);
 		if (callstatus != null)
@@ -87,8 +88,9 @@ public class CompletedCall extends Activity {
 			}
 		});
 		TextView authState = (TextView) findViewById(R.id.auth_state);
-		authState.setText(p.authState.text);
-		authState.setTextColor(getResources().getColor(p.authState.color));
+		AuthState auth = p.getAuthState();
+		authState.setText(auth.text);
+		authState.setTextColor(getResources().getColor(auth.color));
 		Button authButton = (Button) findViewById(R.id.auth_button);
 		authButton.setVisibility(View.GONE);
 

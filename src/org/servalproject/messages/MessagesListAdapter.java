@@ -148,18 +148,13 @@ public class MessagesListAdapter extends SimpleCursorAdapter {
 
 		// if a contact record exists, get the photo associated with it
 		// if there is one
-		if (peer.contactId != -1) {
+		Bitmap mPhoto = peer.contact.getPhoto();
 
-			Bitmap mPhoto = MessageUtils.loadContactPhoto(context,
-					peer.contactId);
-
-			// use photo if found else use default image
-			if (mPhoto != null) {
-				mImageView.setImageBitmap(mPhoto);
-			} else {
-				mImageView.setImageResource(R.drawable.ic_contact_picture);
-			}
-
+		// use photo if found else use default image
+		if (mPhoto != null) {
+			mImageView.setImageBitmap(mPhoto);
+		} else {
+			mImageView.setImageResource(R.drawable.ic_contact_picture);
 		}
 	}
 

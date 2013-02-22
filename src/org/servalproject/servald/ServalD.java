@@ -317,12 +317,12 @@ public class ServalD
 					}
 					break;
 				case 1:
-					if (nextResult != null && nextResult.did == null)
-						nextResult.did = str;
+					if (nextResult != null && !nextResult.didFromUri)
+						nextResult.setDid(str);
 					break;
 				case 2:
 					if (nextResult != null) {
-						nextResult.name = str;
+						nextResult.setName(str);
 						results.result(nextResult);
 					}
 					nextResult = null;

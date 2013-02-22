@@ -35,7 +35,6 @@ import org.servalproject.servald.IPeer;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -82,7 +81,7 @@ public class PeerListAdapter extends ArrayAdapter<IPeer> {
 		}
 
 		View contact = ret.findViewById(R.id.add_contact);
-		if (p.getContactId() >= 0) {
+		if (p.getContact().isAdded()) {
 			contact.setVisibility(View.INVISIBLE);
 		} else {
 			contact.setVisibility(View.VISIBLE);
@@ -98,10 +97,8 @@ public class PeerListAdapter extends ArrayAdapter<IPeer> {
 						v.setVisibility(View.INVISIBLE);
 
 						// now display/edit contact
-						Intent intent = new Intent(Intent.ACTION_VIEW,
-								Uri.parse(
-										"content://contacts/people/"
-												+ p.getContactId()));
+						Intent intent = new Intent(Intent.ACTION_VIEW, p
+								.getContact().getUri());
 						getContext().startActivity(intent);
 					} catch (Exception e) {
 						Log.e("PeerList", e.getMessage(), e);

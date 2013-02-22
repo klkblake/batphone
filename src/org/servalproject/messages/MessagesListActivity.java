@@ -432,11 +432,11 @@ public class MessagesListActivity extends ListActivity implements
 
 			TextView displayName = (TextView) ret
 					.findViewById(R.id.recipient_name);
-			displayName.setText(r.getContactName());
+			displayName.setText(r.getName());
 
-			TextView displaySid = (TextView) ret
+			TextView displayDid = (TextView) ret
 					.findViewById(R.id.recipient_number);
-			displaySid.setText(r.did);
+			displayDid.setText(r.getDid());
 
 			ImageView type = (ImageView) ret.findViewById(R.id.recipient_type);
 			type.setBackgroundResource(R.drawable.ic_24_serval);

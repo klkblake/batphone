@@ -24,8 +24,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.servalproject.account.AccountService;
-import org.servalproject.auth.AuthState;
+import org.servalproject.ServalBatPhoneApplication;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -50,11 +49,10 @@ public class PeerListService {
 
 	private static class BroadcastPeer extends Peer {
 		private BroadcastPeer() {
-			super(SubscriberId.broadcastSid());
-			contactId = Long.MAX_VALUE;
-			did = "*";
-			name = "Broadcast/Everyone";
-			setContactName(name);
+			super(ServalBatPhoneApplication.context.getContentResolver(),
+					SubscriberId.broadcastSid());
+			setDid("*");
+			setContactName("Broadcast/Everyone");
 			cacheUntil = Long.MAX_VALUE;
 			lastSeen = 0;
 			reachable = false;
@@ -82,14 +80,14 @@ public class PeerListService {
 
 		Peer p = peers.get(sid);
 		if (p == null) {
-			p = new Peer(sid);
+			p = new Peer(resolver, sid);
 			peers.put(sid, p);
 			changed = true;
 			Log.v("PeerListService", "Discovered peer " + sid.abbreviation());
 		} else if (!alwaysResolve)
 			return p;
 
-		if (checkContacts(resolver, p))
+		if (p.contact.hasChanged())
 			changed = true;
 
 		if (changed)
@@ -112,44 +110,6 @@ public class PeerListService {
 		notifyListeners(p);
 	}
 
-	private static boolean checkContacts(ContentResolver resolver, Peer p) {
-		if (p.sid.isBroadcast())
-			return false;
-
-		long contactId = AccountService.getContactId(
-				resolver, p.sid);
-
-		boolean changed = false;
-		String contactName = null;
-		AuthState authState = AuthState.None;
-
-		if (contactId >= 0) {
-			contactName = AccountService
-					.getContactName(
-							resolver,
-							p.contactId);
-			authState = AccountService.getContactAuthState(resolver, contactId);
-		}
-
-		if (p.contactId != contactId) {
-			changed = true;
-			p.contactId = contactId;
-		}
-
-		if (!(p.contactName == null ? "" : p.contactName)
-				.equals(contactName == null ? "" : contactName)) {
-			changed = true;
-			p.setContactName(contactName);
-		}
-
-		if (p.authState != authState) {
-			changed = true;
-			p.authState = authState;
-		}
-
-		return changed;
-	}
-
 	static final int CACHE_TIME = 60000;
 	private static List<IPeerListListener> listeners = new ArrayList<IPeerListListener>();
 
@@ -164,11 +124,11 @@ public class PeerListService {
 			ServalD.LookupResult result = ServalD.reverseLookup(p.sid);
 			boolean resolved = false;
 			if (result.did != null) {
-				p.did = result.did;
+				p.setDid(result.did);
 				resolved = true;
 			}
 			if (result.name != null) {
-				p.name = result.name;
+				p.setName(result.name);
 				resolved = true;
 			}
 			if (resolved) {
@@ -194,7 +154,7 @@ public class PeerListService {
 		for (Peer p : peers.values()) {
 			// recheck android contacts before informing this new listener
 			// about peer info
-			if (checkContacts(context.getContentResolver(), p))
+			if (p.contact.hasChanged())
 				notifyListeners(p);
 			else
 				callback.peerChanged(p);

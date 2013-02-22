@@ -19,42 +19,39 @@
  */
 package org.servalproject.servald;
 
-import org.servalproject.account.AccountService;
+import org.servalproject.account.Contact;
 import org.servalproject.auth.AuthState;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.OperationApplicationException;
 import android.os.RemoteException;
 
 
 public class Peer implements IPeer {
-	public long contactId = -1;
-	String contactName;
+	public Contact contact;
 	public long cacheUntil = 0;
 	public long lastSeen = 0;
 	public boolean reachable = false;
 	public final SubscriberId sid;
-	public AuthState authState = AuthState.None;
-
-	// did / name resolved from looking up the sid
-	public String did;
-	public String name;
 
 	// every peer must have a sid
-	Peer(SubscriberId sid) {
+	Peer(ContentResolver resolver, SubscriberId sid) {
 		this.sid = sid;
+		contact = Contact.getContact(resolver, sid);
 	}
 
 	@Override
 	public String getSortString() {
-		return getContactName() + did + sid;
+		return getName() + getDid() + sid;
 	}
 
 	public String getDisplayName() {
-		if (contactName != null && !contactName.equals(""))
-			return contactName;
-		if (name != null && !name.equals(""))
+		String name = getName();
+		if (!name.equals("")) {
 			return name;
+		}
+		String did = getDid();
 		if (did != null && !did.equals(""))
 			return did;
 		return sid.abbreviation();
@@ -62,20 +59,25 @@ public class Peer implements IPeer {
 
 	@Override
 	public boolean hasName() {
-		return (contactName != null && !contactName.equals(""))
-				|| (name != null && !name.equals(""));
+		return !getName().equals("");
 	}
 
-	public String getContactName() {
-		if (contactName != null && !contactName.equals(""))
-			return contactName;
-		if (name != null && !name.equals(""))
+	public String getName() {
+		String name = contact.getName();
+		if (name != null)
 			return name;
 		return "";
 	}
 
+	// Ignore the resolved name if the contact has a name already
+	public void setName(String name) {
+		if (!hasName()) {
+			contact.setName(name);
+		}
+	}
+
 	public void setContactName(String contactName) {
-		this.contactName = contactName;
+		contact.setName(contactName);
 	}
 
 	@Override
@@ -95,22 +97,16 @@ public class Peer implements IPeer {
 
 	@Override
 	public String toString() {
-		if (contactName != null && !contactName.equals(""))
-			return contactName;
-		if (name != null && !name.equals(""))
-			return name;
-		if (did != null && !did.equals(""))
-			return did;
-		return sid.abbreviation();
-	}
-
-	public boolean hasDid() {
-		return did != null && !did.equals("");
+		return getDisplayName();
 	}
 
 	@Override
 	public String getDid() {
-		return did;
+		return contact.getNumber();
+	}
+
+	public void setDid(String did) {
+		contact.setNumber(did);
 	}
 
 	public boolean stillAlive() {
@@ -122,25 +118,23 @@ public class Peer implements IPeer {
 		return sid;
 	}
 
+	public AuthState getAuthState() {
+		return contact.getAuthState();
+	}
+
+	public void setAuthState(AuthState authState) {
+		contact.setAuthState(authState);
+	}
+
 	@Override
-	public long getContactId() {
-		return contactId;
+	public Contact getContact() {
+		return contact;
 	}
 
 	@Override
 	public void addContact(Context context) throws RemoteException,
 			OperationApplicationException {
-		if (contactId == -1) {
-			contactId = AccountService.addContact(
-					context, getContactName(), sid,
-					did, authState);
-		}
+		contact.add(context);
 	}
 
-	public void updateAuthState(Context context) {
-		if (contactId != -1) {
-			AccountService.setContactAuthState(context.getContentResolver(),
-					contactId, authState);
-		}
-	}
 }

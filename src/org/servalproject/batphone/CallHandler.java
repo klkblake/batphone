@@ -64,8 +64,8 @@ public class CallHandler {
 
 	public static void dial(DnaResult result) throws IOException {
 		CallHandler call = createCall(result.peer);
-		call.did = result.did;
-		call.name = result.name;
+		call.did = result.getDid();
+		call.name = result.getName();
 		call.dial();
 	}
 
@@ -164,8 +164,8 @@ public class CallHandler {
 			echoCanceler = new Oslec();
 		this.player = new AudioPlayer(echoCanceler, app);
 		this.remotePeer = peer;
-		this.did = peer.did;
-		this.name = peer.name;
+		this.did = peer.getDid();
+		this.name = peer.getName();
 		lastKeepAliveTime = SystemClock.elapsedRealtime();
 
 		timer.scheduleAtFixedRate(new TimerTask() {

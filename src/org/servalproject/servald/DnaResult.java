@@ -1,7 +1,7 @@
 package org.servalproject.servald;
 
 import org.servalproject.ServalBatPhoneApplication;
-import org.servalproject.account.AccountService;
+import org.servalproject.account.Contact;
 import org.servalproject.servald.AbstractId.InvalidHexException;
 
 import android.content.Context;
@@ -13,9 +13,8 @@ import android.os.SystemClock;
 public class DnaResult implements IPeer {
 	public final Peer peer;
 	public boolean local = true;
-	public String did;
-	public String name;
 	public final Uri uri;
+	public boolean didFromUri = false;
 
 	public DnaResult(Uri uri) throws InvalidHexException,
 			IllegalArgumentException {
@@ -34,10 +33,11 @@ public class DnaResult implements IPeer {
 				} else if (s.equals("external")) {
 					local = false;
 				} else {
-					this.did = s;
+					setDid(s);
 					// only set the local flag if we get a phone number in the
 					// response
 					this.local = local;
+					didFromUri = true;
 				}
 			}
 		} else
@@ -47,10 +47,6 @@ public class DnaResult implements IPeer {
 
 	@Override
 	public String toString() {
-		if (name != null && !name.equals(""))
-			return name;
-		if (did != null && !did.equals(""))
-			return did;
 		return peer.toString();
 	}
 
@@ -75,38 +71,46 @@ public class DnaResult implements IPeer {
 	}
 
 	@Override
-	public long getContactId() {
+	public Contact getContact() {
 		// prevent adding an android contact for gateway services
 		if (local)
-			return peer.getContactId();
+			return peer.getContact();
 		else
-			return Long.MAX_VALUE;
+			return null;
 	}
 
 	@Override
 	public void addContact(Context context) throws RemoteException,
 			OperationApplicationException {
-		if (local && peer.contactId == -1) {
-			peer.contactId = AccountService.addContact(
-					context, name, getSubscriberId(),
-					did, peer.authState);
+		if (local) {
+			peer.contact.add(context);
 		}
 	}
 
 	@Override
 	public boolean hasName() {
-		return name != null && !name.equals("");
+		return peer.hasName();
+	}
+
+	public String getName() {
+		return peer.getName();
+	}
+
+	public void setName(String name) {
+		peer.setName(name);
 	}
 
 	@Override
 	public String getSortString() {
-		return hasName() ? name : peer.name +
-				did +
-				peer.sid;
+		return peer.getSortString();
 	}
 
 	@Override
 	public String getDid() {
-		return did;
+		return peer.getDid();
+	}
+
+	public void setDid(String did) {
+		peer.setDid(did);
 	}
 }

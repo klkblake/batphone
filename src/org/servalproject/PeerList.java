@@ -66,7 +66,7 @@ public class PeerList extends ListActivity {
 	public static final String PICK_PEER_INTENT = "org.servalproject.PICK_FROM_PEER_LIST";
 
 	public static final String CONTACT_NAME = "org.servalproject.PeerList.contactName";
-	public static final String CONTACT_ID = "org.servalproject.PeerList.contactId";
+	public static final String CONTACT_URI = "org.servalproject.PeerList.contactUri";
 	public static final String DID = "org.servalproject.PeerList.did";
 	public static final String SID = "org.servalproject.PeerList.sid";
 	public static final String NAME = "org.servalproject.PeerList.name";
@@ -105,11 +105,12 @@ public class PeerList extends ListActivity {
 						Intent returnIntent = new Intent();
 						returnIntent.putExtra(
 								CONTACT_NAME,
-								p.getContactName());
+								p.getName());
 						returnIntent.putExtra(SID, p.sid.toString());
-						returnIntent.putExtra(CONTACT_ID, p.contactId);
-						returnIntent.putExtra(DID, p.did);
-						returnIntent.putExtra(NAME, p.name);
+						returnIntent.putExtra(CONTACT_URI,
+								p.contact.getRawDataUri());
+						returnIntent.putExtra(DID, p.getDid());
+						returnIntent.putExtra(NAME, p.getName());
 						returnIntent.putExtra(RESOLVED,
 								p.cacheUntil > SystemClock.elapsedRealtime());
 						setResult(Activity.RESULT_OK, returnIntent);
