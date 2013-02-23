@@ -33,4 +33,21 @@
         android:layout_centerHorizontal="true"
         android:text="@string/auth_finished_button" />
 
+    <TextView
+        android:id="@+id/auth_contact_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/auth_finished_text"
+        android:text="@string/auth_contact_text" />
+
+    <Button
+        android:id="@+id/auth_contact_button"
+        style="@style/sbtnauth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/auth_finished_button"
+        android:layout_centerHorizontal="true"
+        android:text="@string/auth_contact_button" />
+
 </RelativeLayout>

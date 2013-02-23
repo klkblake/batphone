@@ -187,6 +187,8 @@ public class AuthSymbols extends Activity {
 	private void startFinished(boolean success) {
 		Intent intent = new Intent(this, AuthFinished.class);
 		intent.putExtra(AuthFinished.EXTRA_SUCCEEDED, success);
+		intent.putExtra(AuthFinished.EXTRA_IN_CONTACTS, getIntent()
+				.getBooleanExtra(AuthFinished.EXTRA_IN_CONTACTS, false));
 		startActivityForResult(intent, REQUEST);
 	}
 
@@ -241,7 +243,7 @@ public class AuthSymbols extends Activity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == REQUEST && resultCode != AuthResult.BACK) {
-			setResult(resultCode);
+			setResult(resultCode, data);
 			finish();
 		}
 	}

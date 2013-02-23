@@ -56,11 +56,15 @@
 	<string name="auth_succeeded_text">Authentication has been
 		successfully completed. This call is now secure against
 		eavesdropping.</string>
-	<string name="auth_failed_text">Authentication failed. This
-	    probably means someone is eavesdropping. Alternatively, you may
-	    just have made too many mistakes during the procedure.\n\n
+	<string name="auth_failed_text">Authentication failed. This probably
+		means someone is eavesdropping. Alternatively, you may just
+		have made too many mistakes during the procedure.\n\n
 
 		You should not discuss anything confidential in this call.</string>
+	<string name="auth_contact_text">\nThis person is not in your contacts.
+		If you add them to your contacts, we\'ll remember their
+		authentication state next time.</string>
+	<string name="auth_contact_button">Add to contacts</string>
 	<string name="auth_finished_button">Take me back to my call</string>
 	<string name="auth_revoke_title">Revoke Authentication</string>
 	<string name="auth_revoke_text">Are you sure you want to revoke this

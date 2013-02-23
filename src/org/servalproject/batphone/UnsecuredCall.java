@@ -3,6 +3,7 @@ package org.servalproject.batphone;
 import org.servalproject.R;
 import org.servalproject.ServalBatPhoneApplication;
 import org.servalproject.account.AccountService;
+import org.servalproject.auth.AuthFinished;
 import org.servalproject.auth.AuthIntro;
 import org.servalproject.auth.AuthResult;
 import org.servalproject.auth.AuthState;
@@ -32,6 +33,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class UnsecuredCall extends Activity {
+
+	public static final String EXTRA_ADD_TO_CONTACTS = "org.servalproject.batphone.add_to_contacts";
 
 	private static final int AUTH_REQUEST = 1;
 
@@ -173,9 +176,11 @@ public class UnsecuredCall extends Activity {
 		authButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				startActivityForResult(new Intent(
-						ServalBatPhoneApplication.context, AuthIntro.class),
-						AUTH_REQUEST);
+				Intent intent = new Intent(ServalBatPhoneApplication.context,
+						AuthIntro.class);
+				intent.putExtra(AuthFinished.EXTRA_IN_CONTACTS,
+						callHandler.remotePeer.contactId != -1);
+				startActivityForResult(intent, AUTH_REQUEST);
 			}
 		});
 
@@ -236,6 +241,16 @@ public class UnsecuredCall extends Activity {
 			case AuthResult.CANCELLED:
 			case AuthResult.BACK:
 				break;
+			}
+			if (data != null
+					&& data.getBooleanExtra(EXTRA_ADD_TO_CONTACTS, false)) {
+				try {
+					callHandler.remotePeer.addContact(this);
+				} catch (Exception e) {
+					Log.e("BatPhone", e.toString(), e);
+					ServalBatPhoneApplication.context.displayToastMessage(e
+							.toString());
+				}
 			}
 			callHandler.remotePeer.updateAuthState(this);
 			updateAuth();
