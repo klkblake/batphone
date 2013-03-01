@@ -2,6 +2,7 @@ package org.servalproject.servald;
 
 import java.nio.ByteBuffer;
 
+// Although an AuthToken is 64 bytes long, it only has 320 bits of entropy.
 public class AuthToken extends AbstractId {
 	@Override
 	int getBinarySize() {

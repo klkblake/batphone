@@ -24,7 +24,7 @@ public class AuthSymbols extends Activity {
 	private static final int REQUEST = 1;
 	public static final String EXTRA_SYMBOL_GENERATOR_INDEX = "org.servalproject.auth.symbol_generator";
 
-	private static final int MIN_ENTROPY = 256;
+	private static final int MIN_ENTROPY = 320;
 	private static final int MAX_ERRORS = 1;
 
 	private static final int NUM_FAKE_SYMBOLS = 3;
