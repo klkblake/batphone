@@ -4,10 +4,10 @@ import java.util.Random;
 
 import org.servalproject.R;
 import org.servalproject.ServalBatPhoneApplication;
-import org.servalproject.servald.AuthTokenRandom;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -34,7 +34,9 @@ public class AuthSymbols extends Activity {
 	};
 
 	private State state;
+	private boolean waiting = false;
 
+	private AuthRandom authRand;
 	private Random rand = new Random();
 
 	private SymbolGenerator symgen;
@@ -71,8 +73,8 @@ public class AuthSymbols extends Activity {
 		}
 		SymbolGeneratorFactory factory = SymbolGenerators.get()[index];
 		entropyDelta = factory.entropy;
-		symgen = factory.create(new AuthTokenRandom(
-				ServalBatPhoneApplication.context.callHandler.getAuthToken()));
+		authRand = new AuthRandom(ServalBatPhoneApplication.context.callHandler);
+		symgen = factory.create(authRand);
 		state = ServalBatPhoneApplication.context.callHandler.initiated ? State.THEM
 				: State.YOU; // These are reversed, since next is called before
 								// the first symbol.
@@ -86,6 +88,9 @@ public class AuthSymbols extends Activity {
 		possibleSymbols = new Symbol[NUM_FAKE_SYMBOLS + 1];
 		possibleSymbolsGrid.setAdapter(new SymbolArrayAdapter(this,
 				possibleSymbols));
+		// The grid must not be visible until the backing array has been
+		// populated (in next()).
+		possibleSymbolsGrid.setVisibility(View.GONE);
 		noMatch = (Button) findViewById(R.id.auth_no_match);
 		query = (TextView) findViewById(R.id.auth_query);
 		yes = (Button) findViewById(R.id.auth_yes_button);
@@ -105,6 +110,8 @@ public class AuthSymbols extends Activity {
 		noMatch.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				if (waiting)
+					return;
 				error();
 			}
 		});
@@ -112,6 +119,8 @@ public class AuthSymbols extends Activity {
 		yes.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				if (waiting)
+					return;
 				correct();
 			}
 		});
@@ -119,6 +128,8 @@ public class AuthSymbols extends Activity {
 		no.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				if (waiting)
+					return;
 				error();
 			}
 		});
@@ -127,6 +138,8 @@ public class AuthSymbols extends Activity {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
+				if (waiting)
+					return;
 				if (position == trueSymbol) {
 					showToast("Correct");
 					correct();
@@ -206,38 +219,55 @@ public class AuthSymbols extends Activity {
 			break;
 		}
 
-		switch (state) {
-		case YOU:
-			title.setText(R.string.auth_your_symbol_title);
-			symbol.removeAllViews();
-			symbol.addView(symgen.next().getView(this, null));
-			symbol.setVisibility(View.VISIBLE);
-			possibleSymbolsGrid.setVisibility(View.GONE);
-			noMatch.setVisibility(View.GONE);
-			query.setVisibility(View.VISIBLE);
-			yes.setVisibility(View.VISIBLE);
-			no.setVisibility(View.VISIBLE);
-			break;
-		case THEM:
-			title.setText(R.string.auth_their_symbol_title);
-			symbol.setVisibility(View.GONE);
-			trueSymbol = rand.nextInt(possibleSymbols.length);
-			for (int i = 0; i < possibleSymbols.length; i++) {
-				if (i == trueSymbol) {
-					possibleSymbols[i] = symgen.next();
-				} else {
-					possibleSymbols[i] = dummy.next();
+		new AsyncTask<Void, Void, Symbol>() {
+			@Override
+			protected void onPreExecute() {
+				waiting = true;
+			}
+
+			@Override
+			protected Symbol doInBackground(Void... params) {
+				return symgen.next();
+			}
+
+			@Override
+			protected void onPostExecute(Symbol next) {
+				waiting = false;
+				switch (state) {
+				case YOU:
+					title.setText(R.string.auth_your_symbol_title);
+					symbol.removeAllViews();
+					symbol.addView(next.getView(AuthSymbols.this, null));
+					symbol.setVisibility(View.VISIBLE);
+					possibleSymbolsGrid.setVisibility(View.GONE);
+					noMatch.setVisibility(View.GONE);
+					query.setVisibility(View.VISIBLE);
+					yes.setVisibility(View.VISIBLE);
+					no.setVisibility(View.VISIBLE);
+					break;
+				case THEM:
+					title.setText(R.string.auth_their_symbol_title);
+					symbol.setVisibility(View.GONE);
+					trueSymbol = rand.nextInt(possibleSymbols.length);
+					for (int i = 0; i < possibleSymbols.length; i++) {
+						if (i == trueSymbol) {
+							possibleSymbols[i] = next;
+						} else {
+							possibleSymbols[i] = dummy.next();
+						}
+					}
+					((SymbolArrayAdapter) possibleSymbolsGrid.getAdapter())
+							.notifyChanged();
+					possibleSymbolsGrid.setVisibility(View.VISIBLE);
+					noMatch.setVisibility(View.VISIBLE);
+					query.setVisibility(View.GONE);
+					yes.setVisibility(View.GONE);
+					no.setVisibility(View.GONE);
+					break;
 				}
 			}
-			((SymbolArrayAdapter) possibleSymbolsGrid.getAdapter())
-					.notifyChanged();
-			possibleSymbolsGrid.setVisibility(View.VISIBLE);
-			noMatch.setVisibility(View.VISIBLE);
-			query.setVisibility(View.GONE);
-			yes.setVisibility(View.GONE);
-			no.setVisibility(View.GONE);
-			break;
-		}
+
+		}.execute();
 	}
 
 	@Override

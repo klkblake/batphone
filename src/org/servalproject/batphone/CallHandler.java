@@ -5,14 +5,14 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.servalproject.ServalBatPhoneApplication;
 import org.servalproject.audio.AudioPlayer;
 import org.servalproject.audio.AudioRecorder;
 import org.servalproject.audio.Oslec;
 import org.servalproject.batphone.VoMP.State;
-import org.servalproject.servald.AbstractId.InvalidHexException;
-import org.servalproject.servald.AuthToken;
 import org.servalproject.servald.DnaResult;
 import org.servalproject.servald.Identity;
 import org.servalproject.servald.Peer;
@@ -40,7 +40,6 @@ public class CallHandler {
 	String name;
 
 	int local_id = 0;
-	AuthToken authToken;
 	VoMP.State local_state = State.NoSuchCall;
 	VoMP.State remote_state = State.NoSuchCall;
 	VoMP.Codec codec = VoMP.Codec.Signed16;
@@ -60,6 +59,8 @@ public class CallHandler {
 	public final AudioPlayer player;
 	private boolean ringing = false;
 	private boolean audioRunning = false;
+
+	public BlockingQueue<Long> authRandQueue = new LinkedBlockingQueue<Long>();
 
 	public static void dial(DnaResult result) throws IOException {
 		CallHandler call = createCall(result.peer);
@@ -118,23 +119,33 @@ public class CallHandler {
 		}
 	}
 
-	private static class AuthTokenHandler implements ServalDMonitor.Message {
+	private static class AuthRandHandler implements ServalDMonitor.Message {
 		@Override
 		public int message(String cmd, Iterator<String> args, InputStream in,
 				int dataLength) throws IOException {
 			args.next(); // local_session
 			String hex = args.next();
-			Log.i("CallHandler", "Got auth token: " + hex);
-			AuthToken token = null;
+			Log.i("CallHandler", "Got auth rand: " + hex);
+			long low, high;
 			try {
-				token = new AuthToken(hex);
-			} catch (InvalidHexException e) {
-				Log.e("CallHandler", "Received invalid AuthToken from ServalD",
+				low = ServalDMonitor.parseIntHex(hex.substring(8));
+				high = ServalDMonitor.parseIntHex(hex.substring(0, 8));
+			} catch (NumberFormatException e) {
+				Log.e("CallHandler", "Received invalid AuthRand from ServalD",
 						e);
+				return 0;
 			}
+			long rand = low + (high << 32);
 			CallHandler call = ServalBatPhoneApplication.context.callHandler;
 			if (call != null) {
-				call.authToken = token;
+				while (true) {
+					try {
+						call.authRandQueue.put(rand);
+						break;
+					} catch (InterruptedException e) {
+						Log.e("CallHandler", "Interrupted, restarting...");
+					}
+				}
 			}
 			return 0;
 		}
@@ -142,7 +153,7 @@ public class CallHandler {
 
 	public static void registerMessageHandlers(ServalDMonitor monitor) {
 		monitor.handlers.put("CALLFROM", new IncomingCall());
-		monitor.handlers.put("AUTHTOKEN", new AuthTokenHandler());
+		monitor.handlers.put("AUTHRAND", new AuthRandHandler());
 	}
 
 	private CallHandler(Peer peer) {
@@ -506,8 +517,14 @@ public class CallHandler {
 		return callStarted;
 	}
 
-	public AuthToken getAuthToken() {
-		return authToken;
+	public void startAuth() {
+		app.servaldMonitor.sendMessageAndLog("authstart ",
+				Integer.toHexString(local_id));
+	}
+
+	public void authNext() {
+		app.servaldMonitor.sendMessageAndLog("authnext ",
+				Integer.toHexString(local_id));
 	}
 
 }
